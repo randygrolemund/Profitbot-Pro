@@ -1,22 +1,22 @@
 Write-Host "
- _______________________________________________________________________________________
-|                                                                                       |
-|                 Profitbot Pro Benchmark Tool created by Bearlyhealz.                  |
-|                 :: Automated Mining Software for the Average Joe ::                   |
-|---------------------------------------------------------------------------------------|
-|                       Free to use, donations kindly accepted.                         |
-|                                                                                       |
-|               ETH Address: 0xA58B04A5Dc2F3934cB54E087b927268836Ac0159                 |
-|                   BTC Address: 3Pz3JPxGsQxsyJT7km58NTohC9C16ndpAN                     |
-|                                                                                       |
-|         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
-|                                                                                       |
-|---------------------------------------------------------------------------------------|
-|                     Feature requests and feedback welcomed! :)                        |
-|                        https://github.com/randygrolemund                              |
-|                           https://www.profitbotpro.com                                |
-|                           https://api.profitbotpro.com                                |
-|_______________________________________________________________________________________|
+      _______________________________________________________________________________________
+     |                                                                                       |
+     |                 Profitbot Pro Benchmark Tool created by Bearlyhealz.                  |
+     |                 :: Automated Mining Software for the Average Joe ::                   |
+     |---------------------------------------------------------------------------------------|
+     |                       Free to use, donations kindly accepted.                         |
+     |                                                                                       |
+     |               ETH Address: 0xA58B04A5Dc2F3934cB54E087b927268836Ac0159                 |
+     |                   BTC Address: 3Pz3JPxGsQxsyJT7km58NTohC9C16ndpAN                     |
+     |                                                                                       |
+     |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
+     |                                                                                       |
+     |---------------------------------------------------------------------------------------|
+     |                     Feature requests and feedback welcomed! :)                        |
+     |                        https://github.com/randygrolemund                              |
+     |                           https://www.profitbotpro.com                                |
+     |                           https://api.profitbotpro.com                                |
+     |_______________________________________________________________________________________|
 
 " -ForegroundColor Cyan
 # Get the time and date.

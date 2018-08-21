@@ -49,8 +49,8 @@ if ($get_settings.update_check -eq 'yes') {
     $web_version = $check_update.version
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
-    Write-Host $TimeNow : "Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
-    Write-Host $TimeNow : "      Web version: SCPM v$web_version" -ForegroundColor Yellow
+    Write-Host $TimeNow : "Installed version: Profitbot Pro v$installed_settings_version" -ForegroundColor Yellow
+    Write-Host $TimeNow : "      Web version: Profitbot Pro v$web_version" -ForegroundColor Yellow
     # check to see if running the newest version
     if ($web_version -gt $installed_settings_version) {
         Write-Host $TimeNow : "An update is available!" -ForegroundColor Cyan
@@ -293,7 +293,7 @@ Get-ChildItem $path\$pc\*.log | Where-Object { $_.LastWriteTime -lt $DatetoDelet
 Get-ChildItem $path\Backups\*.zip | Where-Object { $_.LastWriteTime -lt $DatetoDelete } | Remove-Item
 
 #Check if the best coin to mine is in your list.
-if ($best_coin -in $Array.ToUpper()) {
+if ($static_mode -eq "no" -and $best_coin -in $Array.ToUpper()) {
     Write-Host $TimeNow : "You will be mining coin position $top_list_position in the list." -ForegroundColor Magenta
 }
 else {
@@ -582,7 +582,10 @@ Do {
     $last_reward = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_reward
     $difficulty = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty difficulty
     $coin_units = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_units
-
+    
+    # Verify the API json is not empty
+    $json_count = $get_coin.top_list | Measure-Object | Select-Object Count
+   
     If ($HTTP_Status -eq 200) {
     }
     Else {
@@ -593,13 +596,15 @@ Do {
 
     $TimeNow = Get-Date
     $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get 
+    
     $worker_hashrate = $get_hashrate.hashrate.total[0]
     $my_results = $get_hashrate.results.shares_good
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
         # Caclulate estimated shares over 24 hours if not null
-        if(!$worker_hashrate -and !$difficulty -and !$last_reward -and !$coin_units){
-            Write-Host $TimeNow : "Worker is not receiving coin data from Profitbot Pro api!" -ForegroundColor Red
+        if(!$worker_hashrate -and !$difficulty -and !$last_reward -and !$coin_units -and  $json_count.Count -ge 30){
+            
+            Write-Host $TimeNow : "The Profitbot Pro API is either refreshing data, or no data is available!" -ForegroundColor Red
         }
         else {
             $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 2)
@@ -607,15 +612,15 @@ Do {
         }
         Write-Host $TimeNow : "Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Green
         # Caclulate daily profit in USD if not null
-        if(!$reward_24H -and !$coin_usd){
-            Write-Host $TimeNow : "Worker is not receiving coin data from Profitbot Pro api!" -ForegroundColor Red
+        if(!$reward_24H -and !$coin_usd -and  $json_count.Count -ge 30){
+            Write-Host $TimeNow : "The Profitbot Pro API is either refreshing data, or no data is available!" -ForegroundColor Red
          }
          else {
             $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 2)
             Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
          }
         if ($static_mode -eq 'yes') {
-            Write-Host $TimeNow : "SCPM is set to static mode. Profit Mananager is disabled." -ForegroundColor DarkGray
+            Write-Host $TimeNow : "Profitbot Pro is set to static mode. Profit Mananager is disabled." -ForegroundColor DarkGray
         }
     }
     else {
