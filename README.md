@@ -1,2 +1,2 @@
-# Profitbot-Pro
-Re-brand of Shitcoin Profit Manager
+# Profibot-Pro_Coin_Calculator
+Server-side app that the Profitbot Pro Client pulls data from
