@@ -619,23 +619,33 @@ Do {
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
         # Caclulate estimated shares over 24 hours if not null
-        if (!$worker_hashrate -and !$difficulty -and !$last_reward -and !$coin_units -and $json_count.Count -ge 30) {
-            
-            Write-Host $TimeNow : "The Profitbot Pro API is either refreshing data, or no data is available!" -ForegroundColor Red
+        Try {
+            $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 4)
         }
-        else {
-            $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 2)
-            
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
+            Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+            Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
+            Start-Sleep 10
+            ./profit_manager.ps1
         }
         Write-Host $TimeNow : "Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Green
         # Caclulate daily profit in USD if not null
-        if (!$reward_24H -and !$coin_usd -and $json_count.Count -ge 30) {
-            Write-Host $TimeNow : "The Profitbot Pro API is either refreshing data, or no data is available!" -ForegroundColor Red
-        }
-        else {
+        Try {
             $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 2)
-            Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
         }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
+            Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+            Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
+            Start-Sleep 10
+            ./profit_manager.ps1
+        }
+        Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
         if ($static_mode -eq 'yes') {
             Write-Host $TimeNow : "Profitbot Pro is set to static mode. Profit Mananager is disabled." -ForegroundColor DarkGray
         }
