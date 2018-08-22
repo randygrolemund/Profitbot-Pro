@@ -357,7 +357,7 @@ else {
     [console]::beep(2000, 500)
     Write-Host $TimeNow : "When you are done, hit enter -- the worker will reload, and run the software automatically.
     
-    " -ForegroundColor Red
+    " -ForegroundColor Yellow
     pause
     #The miner will reload the Powershell file. You can make changes while it's running, and they will be applied on reload.
     .\profit_manager.ps1
@@ -621,7 +621,7 @@ Do {
     Catch {
         $ErrorMessage = $_.Exception.Message
         $FailedItem = $_.Exception.ItemName
-        Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
+        Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
         Write-Host $TimeNow : "If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
         Write-Host $TimeNow : "Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
         Start-Sleep 5
@@ -639,7 +639,7 @@ Do {
         Catch {
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
-            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
+            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
             Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
             Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
             Start-Sleep 10
@@ -653,7 +653,7 @@ Do {
         Catch {
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
-            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
+            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
             Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
             Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
             Start-Sleep 10
