@@ -73,7 +73,7 @@ if ($get_settings.update_check -eq 'yes') {
                 # Read the lock file. If it matches worker's name, continue update. Otherwise, pause to allow main worker to finish update and restart.
                 $read_lockfile = Get-Content $path\lockfile.lock -First 1
                 if ($read_lockfile -ne $pc) {
-                    Write-Host $TimeNow : "Another worker has started the update process, waiting 30 seconds for process to complete" -ForegroundColor Red
+                    Write-Host $TimeNow : "Another worker has started the update process, waiting 30 seconds." -ForegroundColor Red
                     Start-Sleep 30
                     ./profit_manager.ps1
                 }
@@ -617,7 +617,7 @@ Do {
     $difficulty = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty difficulty
     $coin_units = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_units
     
-    # Verify the API json is not empty
+    # Verify the API json is not empty  -----not currently used in code
     $json_count = $get_coin.top_list | Measure-Object | Select-Object Count
    
     If ($HTTP_Status -eq 200) {
