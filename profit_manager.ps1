@@ -1,3 +1,14 @@
+# Set the size of the window
+Function Set-WindowSize {
+    Param([int]$x = $host.ui.rawui.windowsize.width,
+        [int]$y = $host.ui.rawui.windowsize.heigth)
+
+    $size = New-Object System.Management.Automation.Host.Size($x, $y)
+    $host.ui.rawui.WindowSize = $size
+}
+Set-WindowSize 100 50
+
+# Startup banner
 Write-Host "
       _______________________________________________________________________________________
      |                                                                                       |
