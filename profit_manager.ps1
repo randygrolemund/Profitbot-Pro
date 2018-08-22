@@ -623,8 +623,8 @@ Do {
         $FailedItem = $_.Exception.ItemName
         Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
         Write-Host $TimeNow : "If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
-        Write-Host $TimeNow : "Restarting the worker may fix this is XMR-Stak closed due to an error, or by mistake." -ForegroundColor Yellow
-        Start-Sleep 10
+        Write-Host $TimeNow : "Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+        Start-Sleep 5
         ./profit_manager.ps1
     }
     # Calculate the worker hashrate and accepted shares.
