@@ -69,18 +69,27 @@ if ($get_settings.update_check -eq 'yes') {
         if ($get_settings.allow_automatic_updates -eq 'yes') {
             # If lockfile exists skip, otherwise download new profit_manager.ps1 file
             if (Test-Path $path\lockfile.lock) {
-                Remove-Item lockfile.lock
-                Start-Sleep 2
+                
+                # Read the lock file. If it matches worker's name, continue update. Otherwise, pause to allow main worker to finish update and restart.
+                $read_lockfile = Get-Content $path\lockfile.lock -First 1
+                if ($read_lockfile -ne $pc) {
+                    Write-Host $TimeNow : "Another worker has started the update process, waiting 30 seconds for process to complete" -ForegroundColor Red
+                    Start-Sleep 30
+                    ./profit_manager.ps1
+                }
             }
             else {
+                # Set lockfile to prevent other workers from disturbing update.
+                Write-Host $TimeNow : "Creating lockfile.lock -- This file will be removed once the worker restarts" -ForegroundColor Red
+                Write-Output "$PC" | Out-File $path\lockfile.lock
+                
                 # Download updates from server
                 $url = "https://$update_url/releases/profit_manager.ps1"
                 $output = "$path\profit_manager.ps1"
                 Invoke-WebRequest -Uri $url -OutFile $output
-                Start-Sleep 1
+                Start-Sleep 5
+                
                 #Restart Worker and pull in new profit_manager.ps1 before updating the rest of the files.
-                Write-Host $TimeNow : "Creating lockfile.lock -- This file will be removed once the worker restarts" -ForegroundColor Red
-                Write-Output "Update in Progress! Do not Delete unless update fails." | Out-File $path\lockfile.lock
                 Write-Host $TimeNow : "Restarting worker before updating additional files." -ForegroundColor Green 
                 ./profit_manager.ps1
             }
@@ -186,12 +195,20 @@ if ($get_settings.update_check -eq 'yes') {
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
             Start-Sleep 2
+            # Remove lock file once update is complete.
+            if (Test-Path $path\lockfile.lock) {
+                Write-Host $TimeNow : "Removing lockfile.lock" -ForegroundColor Yellow
+                Remove-Item lockfile.lock
+                Start-Sleep 2
+            }
             
             Write-Host $TimeNow : "Updates installed! Restarting worker." -ForegroundColor Green
             # Pull in settings from file
             $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Json
             $get_coin_settings = Get-Content -Path "coin_settings.conf" | Out-String | ConvertFrom-Json
             $version = $get_settings.version
+
+            # Restart the worker to apply updates.
             ./profit_manager.ps1
         }
     }
