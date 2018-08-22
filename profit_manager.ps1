@@ -611,9 +611,23 @@ Do {
     }
     $HTTP_Response.Close()
 
+    # Get the current date and time.
     $TimeNow = Get-Date
-    $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get 
-    
+
+    # Get the hashrate from XMR-Stak. If error state occurs, restart the worker.
+    Try {
+        $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get 
+    }
+    Catch {
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Red
+        Write-Host $TimeNow : "If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+        Write-Host $TimeNow : "Restarting the worker may fix this is XMR-Stak closed due to an error, or by mistake." -ForegroundColor Yellow
+        Start-Sleep 10
+        ./profit_manager.ps1
+    }
+    # Calculate the worker hashrate and accepted shares.
     $worker_hashrate = $get_hashrate.hashrate.total[0]
     $my_results = $get_hashrate.results.shares_good
     $suggested_diff = [math]::Round($worker_hashrate * 30)
