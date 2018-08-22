@@ -333,7 +333,7 @@ Write-Host $TimeNow : "Activating Worker on [$pc]"
 # Get information about the GPU, print to screen
 Write-Host $TimeNow : "This system has the following GPU's:" -ForegroundColor Yellow
 foreach ($gpu in Get-WmiObject Win32_VideoController) {
-    if ($gpu.Description -notlike "*Intel*") {Write-Host "                       -"$gpu.Description}
+    if ($gpu.Description -notlike "*Intel*" -or $gpu.Description -notlike "*Microsoft*") {Write-Host "                       -"$gpu.Description}
 }
 Write-Host $TimeNow : "Configured to Mine: $best_coin <--------" -ForegroundColor Magenta
 
