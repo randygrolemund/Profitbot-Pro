@@ -215,7 +215,6 @@ $mine_seconds = $mine_seconds = [int]$get_settings.mining_timer * [int]60
 $set_sleep = $get_settings.sleep_seconds
 $enable_voice = $get_settings.voice
 $static_mode = $get_settings.static_mode
-$bypass_check = "no"
 $config = "config.txt"
 $ignore_httpd = "no"
 $enable_log = $get_settings.enable_logging
@@ -303,35 +302,38 @@ $DatetoDelete = $TimeNow.AddDays(-$log_age)
 Get-ChildItem $path\$pc\*.log | Where-Object { $_.LastWriteTime -lt $DatetoDelete } | Remove-Item
 Get-ChildItem $path\Backups\*.zip | Where-Object { $_.LastWriteTime -lt $DatetoDelete } | Remove-Item
 
-#Check if the best coin to mine is in your list.
-if ($static_mode -eq "no" -and $best_coin -in $Array.ToUpper()) {
-    Write-Host $TimeNow : "You will be mining coin position $top_list_position in the list." -ForegroundColor Magenta
+# Check worker mining mode. Set variables accordingly.
+if ($static_mode -eq 'yes') {
+    Write-Host $TimeNow : "Worker is set to static mode, configured to mine $best_coin." -ForegroundColor red  
 }
 else {
-    Write-Host $TimeNow : "The best coin to mine is $best_coin but it's not in your list" -ForegroundColor red
-    $timenow = Get-Date
-    # Check for log file, if doesn't exist, create.
-    if ($enable_log -eq 'yes') {
-        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-            Write-Output "$TimeNow : Switched mining to $default_coin, $best_coin is not in your list" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+    #Check if the best coin to mine is in your list.
+    if ($best_coin -in $Array.ToUpper()) {
+        Write-Host $TimeNow : "You will be mining coin number $top_list_position in the API list." -ForegroundColor Magenta
+    }
+    else {
+        Write-Host $TimeNow : "The best coin to mine is $best_coin but it's not in your list" -ForegroundColor red
+        $timenow = Get-Date
+        # Check for log file, if doesn't exist, create.
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Switched mining to $default_coin, $best_coin is not in your list" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
 
+            }
+            else {
+                Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                Write-Output "$TimeNow : Started mining $default_coin, $best_coin is not in your list" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
         }
-        else {
-            Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-            Write-Output "$TimeNow : Started mining $default_coin, $best_coin is not in your list" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        }
-
-        #Choose a default coin to mine if one of the coins listed above is NOT in your list. Prevents the miner from closing when there isn't a match.
-        $best_coin = $default_coin
-        $bypass_check = "yes"
     }
 }
+
 Write-Host $TimeNow : "Activating Worker on [$pc]"
 
 # Get information about the GPU, print to screen
 Write-Host $TimeNow : "This system has the following GPU's:" -ForegroundColor Yellow
 foreach ($gpu in Get-WmiObject Win32_VideoController) {
-    Write-Host "                       -"$gpu.Description
+    if ($gpu.Description -notlike "*Intel*") {Write-Host "                       -"$gpu.Description}
 }
 Write-Host $TimeNow : "Configured to Mine: $best_coin <--------" -ForegroundColor Magenta
 
@@ -444,7 +446,7 @@ $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --curr
 Write-Host $TimeNow : "Starting $miner_type in another window."
 
 # Edit for adding static mining
-if ($static_mode -eq "yes") {
+if ($static_mode -eq 'yes') {
     $best_coin_check = $default_coin
 }
 else {
@@ -482,6 +484,7 @@ else {
     }
     else {
         $best_coin_check = $get_coin_settings.default_coin
+        $not_in_list = "yes"
     }
 }
 $timenow = Get-Date
@@ -512,12 +515,13 @@ $TimeEnd = $timeStart.addminutes($mine_minutes)
 Write-Host " "
 Write-Host $timenow : "Started Worker" -ForegroundColor Green
 if ($static_mode -eq 'no') {
-    write-host $timenow : "Check Profitiability... $TimeEnd" -ForegroundColor Green
+    write-host $timenow : "Check Profitiability again at $TimeEnd" -ForegroundColor Green
 }
 # If we are mining the default coin, pause for 5 minutes.
-if ($bypass_check -eq 'yes') {
+if ($not_in_list -eq 'yes') {
     $TimeNow = Get-Date
-    Write-Host $TimeNow : "Worker is set to mine default coin: $best_coin : Checking again at $TimeEnd" -ForegroundColor cyan
+    Write-Host $TimeNow : "Worker is set to mine default coin: $best_coin." -ForegroundColor cyan
+    Write-Host $TimeNow : "Checking again at $TimeEnd" -ForegroundColor Cyan
     Start-Sleep -Seconds $mine_seconds
 }
 Write-Host " "
@@ -576,7 +580,7 @@ Do {
     }
     else {
         if ($static_mode -eq "no") {
-            Write-Host $TimeNow : "Currently mining $best_coin : Checking again at $TimeEnd."
+            Write-Host $TimeNow : "Currently mining $best_coin : Checking again at $TimeEnd." -ForegroundColor White
         }
     }
     # Check if worker url is working, then get the current hashrate from mining software
@@ -585,6 +589,8 @@ Do {
     $HTTP_Response = $HTTP_Request.GetResponse()
     $HTTP_Status = [int]$HTTP_Response.StatusCode
 
+    # Refresh coin values
+    $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
     # Set coin variables from API
     $symbol = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
     $coin_name = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_name
@@ -613,7 +619,7 @@ Do {
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
         # Caclulate estimated shares over 24 hours if not null
-        if(!$worker_hashrate -and !$difficulty -and !$last_reward -and !$coin_units -and  $json_count.Count -ge 30){
+        if (!$worker_hashrate -and !$difficulty -and !$last_reward -and !$coin_units -and $json_count.Count -ge 30) {
             
             Write-Host $TimeNow : "The Profitbot Pro API is either refreshing data, or no data is available!" -ForegroundColor Red
         }
@@ -623,13 +629,13 @@ Do {
         }
         Write-Host $TimeNow : "Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Green
         # Caclulate daily profit in USD if not null
-        if(!$reward_24H -and !$coin_usd -and  $json_count.Count -ge 30){
+        if (!$reward_24H -and !$coin_usd -and $json_count.Count -ge 30) {
             Write-Host $TimeNow : "The Profitbot Pro API is either refreshing data, or no data is available!" -ForegroundColor Red
-         }
-         else {
+        }
+        else {
             $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 2)
             Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
-         }
+        }
         if ($static_mode -eq 'yes') {
             Write-Host $TimeNow : "Profitbot Pro is set to static mode. Profit Mananager is disabled." -ForegroundColor DarkGray
         }
@@ -661,7 +667,7 @@ else {
     $build_json.worker_hashrate = "$worker_hashrate"
     $build_json | convertto-json | Set-Content "$path\$pc\$symbol.conf"
 }
-if ($bypass_check -eq 'no') {
+if ($static_mode -eq 'no') {
     Write-Host $TimeNow : "Profitability has changed, switching coins now." -ForegroundColor yellow
 }
 else {
@@ -703,7 +709,10 @@ if ($worker_running) {
         $worker_running | Stop-Process -Force | Out-Null
     }
 }
-Remove-Variable worker_running
 Write-Host $timenow : "Successfully stopped miner process, reloading." -ForegroundColor Yellow
-#The miner will reload the Powershell file. You can make changes while it's running, and they will be applied on reload.
+
+# Clear all variables
+Remove-Variable * -ErrorAction SilentlyContinue
+
+# Reload the worker.
 .\profit_manager.ps1
