@@ -624,6 +624,7 @@ Do {
     $last_reward = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_reward
     $difficulty = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty difficulty
     $coin_units = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_units
+    $last_updated = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_updated
     
     # Verify the API json is not empty  -----not currently used in code
     $json_count = $get_coin.top_list | Measure-Object | Select-Object Count
@@ -688,6 +689,8 @@ Do {
             }
         }
         Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
+        Write-Host $TimeNow : "API data last refreshed: $last_updated (UTC)." -ForegroundColor White
+        Write-Host $TimeNow : "Network Difficulty: $difficulty." -ForegroundColor White
         if ($static_mode -eq 'yes') {
             Write-Host $TimeNow : "Profitbot Pro is set to static mode. Profit Mananager is disabled." -ForegroundColor DarkGray
         }
