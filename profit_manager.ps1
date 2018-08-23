@@ -781,10 +781,11 @@ if ($get_settings.update_check -eq 'yes') {
                     }
                     ./profit_manager.ps1
                 }
-            }
+            
             Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
             Write-Host $TimeNow : "API data last refreshed: $last_updated (UTC)." -ForegroundColor White
             Write-Host $TimeNow : "Network Difficulty: $difficulty." -ForegroundColor White
+            }
             if ($static_mode -eq 'yes') {
                 Write-Host $TimeNow : "Profitbot Pro is set to static mode. Profit Mananager is disabled." -ForegroundColor DarkGray
             }
