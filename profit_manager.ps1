@@ -760,7 +760,7 @@ if ($get_settings.update_check -eq 'yes') {
                     Start-Sleep 10
                     # Write to the log.
                     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                        Write-Output "$TimeNow : Error encountered - $errormessage, restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                        Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                     }
                     ./profit_manager.ps1
                 }           
@@ -777,7 +777,7 @@ if ($get_settings.update_check -eq 'yes') {
                     Start-Sleep 10
                     # Write to the log.
                     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                        Write-Output "$TimeNow : Error encountered - $errormessage, restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                        Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                     }
                     ./profit_manager.ps1
                 }
