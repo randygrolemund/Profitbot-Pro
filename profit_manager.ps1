@@ -192,6 +192,12 @@ if ($get_settings.update_check -eq 'yes') {
             else {
                 $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
             }
+            if ($original_settings.enable_coin_data -ne $null) {
+                $original_settings.enable_coin_data = $original_settings.enable_coin_data
+            }
+            else {
+                $original_settings | add-member -Name "enable_coin_data" -value "yes" -MemberType NoteProperty
+            }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
             Start-Sleep 2
@@ -649,32 +655,35 @@ Do {
     $my_results = $get_hashrate.results.shares_good
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
-        # Caclulate estimated shares over 24 hours if not null
-        Try {
-            $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 4)
-        }
-        Catch {
-            $ErrorMessage = $_.Exception.Message
-            $FailedItem = $_.Exception.ItemName
-            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
-            Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
-            Start-Sleep 10
-            ./profit_manager.ps1
-        }
+        # Print the worker hashrate and accepted share to screen.
         Write-Host $TimeNow : "Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Green
-        # Caclulate daily profit in USD if not null
-        Try {
-            $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 2)
-        }
-        Catch {
-            $ErrorMessage = $_.Exception.Message
-            $FailedItem = $_.Exception.ItemName
-            Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
-            Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
-            Start-Sleep 10
-            ./profit_manager.ps1
+        if ($get_settings.enable_coin_data -eq 'yes') {
+            # Caclulate estimated shares over 24 hours if not null
+            Try {
+                $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 4)
+            }
+            Catch {
+                $ErrorMessage = $_.Exception.Message
+                $FailedItem = $_.Exception.ItemName
+                Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+                Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+                Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
+                Start-Sleep 10
+                ./profit_manager.ps1
+            }           
+            # Caclulate daily profit in USD if not null
+            Try {
+                $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 2)
+            }
+            Catch {
+                $ErrorMessage = $_.Exception.Message
+                $FailedItem = $_.Exception.ItemName
+                Write-host $TimeNow : "Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+                Write-Host $TimeNow : "Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+                Write-Host $TimeNow : "Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
+                Start-Sleep 10
+                ./profit_manager.ps1
+            }
         }
         Write-Host $TimeNow : "Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor DarkGreen
         if ($static_mode -eq 'yes') {
