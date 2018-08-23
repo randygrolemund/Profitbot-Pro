@@ -38,6 +38,19 @@ $version = $get_settings.version
 $Host.UI.RawUI.WindowTitle = "Profitbot Pro created by Bearlyhealz v$version"
 $pc = $env:ComputerName
 
+# Set Log variables
+$enable_log = $get_settings.enable_logging
+$log_age = $get_settings.log_age
+
+# Check for log file, if doesn't exist, create.
+if ($enable_log -eq 'yes') {
+    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+        Write-Host $TimeNow : "Log structure exists, no need to create. (OK!)" -ForegroundColor Green
+    }
+    else {
+        Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+    }
+}
 # Get the time and date
 $TimeNow = Get-Date
 
@@ -240,8 +253,6 @@ $enable_voice = $get_settings.voice
 $static_mode = $get_settings.static_mode
 $config = "config.txt"
 $ignore_httpd = "no"
-$enable_log = $get_settings.enable_logging
-$log_age = $get_settings.log_age
 
 # Check if param exists
 if ($get_settings.stop_worker_delay -ne $null) {
@@ -337,15 +348,10 @@ else {
     else {
         Write-Host $TimeNow : "The best coin to mine is $best_coin but it's not in your list" -ForegroundColor red
         $timenow = Get-Date
-        # Check for log file, if doesn't exist, create.
+        # Write to log.
         if ($enable_log -eq 'yes') {
             if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                 Write-Output "$TimeNow : Switched mining to $default_coin, $best_coin is not in your list" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-
-            }
-            else {
-                Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                Write-Output "$TimeNow : Started mining $default_coin, $best_coin is not in your list" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
             }
         }
     }
@@ -511,13 +517,9 @@ else {
     }
 }
 $timenow = Get-Date
-# Check for log file, if doesn't exist, create.
+# Write to log.
 if ($enable_log -eq 'yes') {
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-        Write-Output "$TimeNow : Started mining $best_coin" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-    }
-    else {
-        Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         Write-Output "$TimeNow : Started mining $best_coin" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
 }
@@ -726,21 +728,16 @@ else {
 }
 Write-Host $TimeNow : "Shutting down worker, please wait....."   -ForegroundColor yellow
 
-# Variables for log file.
+# Mining statistics for log file.
 $Time_End = GET-DATE
 $timespan = $Time_End - $TimeStart
 $mined_minutes = $timespan.minutes
 $mined_hours = $timespan.hours
-# Check for log file, if doesn't exist, create.
+
+# Write to log
 if ($enable_log -eq 'yes') {
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
         Write-Output "$TimeNow : Finished mining $best_coin, switching to $best_coin_check" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        Write-Output "$TimeNow : Mined $best_coin for: $mined_hours : $mined_minutes minutes" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        Write-Output "$TimeNow : $best_coin worker hashrate: $worker_hashrate H/s, Accepted Shares: $my_results"  | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-    }
-    else {
-        Write-Output "$TimeNow : Created log file for $pc." | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        Write-Output "$TimeNow : Finished mining $best_coin, switching to $best_coin_check." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         Write-Output "$TimeNow : Mined $best_coin for: $mined_hours : $mined_minutes minutes" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         Write-Output "$TimeNow : $best_coin worker hashrate: $worker_hashrate H/s, Accepted Shares: $my_results"  | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
