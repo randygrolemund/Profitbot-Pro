@@ -127,50 +127,38 @@ if ($get_settings.update_check -eq 'yes') {
                 Invoke-WebRequest -Uri $url -OutFile $output
                 Start-Sleep 1
                 #Restart Worker and pull in new profit_manager.ps1 before updating the rest of the files.
-                Write-Host $TimeNow : "Creating lockfile.lock -- This file will be removed once the worker restarts" -ForegroundColor Red
+                Write-Host "$TimeNow : Creating lockfile.lock. Lockfile will be removed after update." -ForegroundColor Red
                 Write-Output "$PC" | Out-File $path\lockfile.lock
-                Write-Host $TimeNow : "Restarting worker before updating additional files." -ForegroundColor Green 
+                Write-Host "$TimeNow : Restarting worker before updating additional files." -ForegroundColor Green 
                 ./profit_manager.ps1
             }
             if ($installed_settings_version -ne $installed_coin_settings_version) {
-                Write-Host $TimeNow : "Version mismatch. Settings.conf is v$installed_settings_version and coin_settings.conf is $installed_coin_settings_version." -ForegroundColor Red
-                Write-Host $TimeNow : "If automatic upadates are enabled, we will attempt to resolve the issue for you." -ForegroundColor Red
+                Write-Host "$TimeNow : Version mismatch. Settings.conf is v$installed_settings_version and coin_settings.conf is $installed_coin_settings_version." -ForegroundColor Red
+                Write-Host "$TimeNow : If automatic upadates are enabled, we will attempt to resolve the issue for you." -ForegroundColor Red
             }
-            # Check if Previous Version folder exists, otherwise create
-            if (Test-Path $path\Previous_Version -PathType Container) {
-                Write-Host $TimeNow : "Checking if the folder Previous_Version exists. (OK!)" -ForegroundColor green
-            }
-            else {
-                Write-Host $TimeNow : "Creating Previous_Version folder." -ForegroundColor yellow
-                $fso = new-object -ComObject scripting.filesystemobject
-                $fso.CreateFolder("$path\Previous_Version")
-            }            # Check if Backups folders exists, otherwise create
+
+            # Check if Backups folders exists, otherwise create
             if (Test-Path $path\Backups -PathType Container) {
                 
                 #Test if Previous Versions is empty
                 $directoryInfo = Get-ChildItem $path\Previous_Version | Measure-Object
                 if ($directoryInfo.Count -eq 0) {
-                    Write-Host $TimeNow : "The are no files staged for backup. We will check on the next update cycle." -ForegroundColor Red
+                    Write-Host "$TimeNow : The are no files staged for backup. We will check on the next update cycle." -ForegroundColor Red
                 }
                 else {
-                    Write-Host $TimeNow : "Adding previously backed up files to archive. (OK!)" -ForegroundColor Green
+                    Write-Host "$TimeNow : Adding previously backed up files to archive. (OK!)" -ForegroundColor Green
                     $source = "$path\Previous_Version"
                     $destination = "$path\Backups\backup_$(get-date -f 'yyyy-MM-dd_hh_mm_ss').zip"
                     Add-Type -assembly "system.io.compression.filesystem"
                     [io.compression.zipfile]::CreateFromDirectory($Source, $destination) 
                 }
             }
-            else {
-                Write-Host $TimeNow : "Creating Backups folder." -ForegroundColor yellow
-                $fso = new-object -ComObject scripting.filesystemobject
-                $fso.CreateFolder("$path\Backups")
-            }
-                    
+                 
             # Copy files from root to previous_version
-            Write-Host $TimeNow : "Backing up your current files to Previous_Version." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Backing up your current files to Previous_Version." -ForegroundColor Yellow
             Copy-Item -Path $path\*.conf -Destination $path\Previous_Version -force
             Copy-Item -Path $path\*.ps1 -Destination $path\Previous_Version -force
-            Write-Host $TimeNow : "Downloading updates...." -ForegroundColor Cyan
+            Write-Host "$TimeNow : Downloading updates...." -ForegroundColor Cyan
             
             # Download Additional Updates
             $url = "https://$update_url/releases/benchmark.ps1"
@@ -194,7 +182,7 @@ if ($get_settings.update_check -eq 'yes') {
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
             
-            Write-Host $TimeNow : "Importing settings from coin_settings.conf." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Importing settings from coin_settings.conf." -ForegroundColor Yellow
             # Copy user's settings from original config files to new config files.
             $original_coin_settings = Get-Content $coin_settings_path -raw | ConvertFrom-Json
             $original_coin_settings.default_coin = $original_coin_settings.default_coin
@@ -204,7 +192,7 @@ if ($get_settings.update_check -eq 'yes') {
             $original_coin_settings | ConvertTo-Json -Depth 10 | set-content 'coin_settings.conf'
             Start-Sleep 2
             
-            Write-Host $TimeNow : "Importing settings from settings.conf." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Importing settings from settings.conf." -ForegroundColor Yellow
             $original_settings = Get-Content $settings_path -raw | ConvertFrom-Json
             $original_settings.path = $original_settings.path
             $original_settings.static_mode = $original_settings.static_mode
@@ -241,7 +229,7 @@ if ($get_settings.update_check -eq 'yes') {
             
             Start-Sleep 2
             
-            Write-Host $TimeNow : "Updates installed! Restarting worker." -ForegroundColor Green
+            Write-Host "$TimeNow : Updates installed! Restarting worker." -ForegroundColor Green
             # Pull in settings from file
             $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Json
             $get_coin_settings = Get-Content -Path "coin_settings.conf" | Out-String | ConvertFrom-Json
