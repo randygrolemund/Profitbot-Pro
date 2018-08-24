@@ -128,7 +128,7 @@ if ($get_settings.update_check -eq 'yes') {
                 Start-Sleep 1
                 #Restart Worker and pull in new profit_manager.ps1 before updating the rest of the files.
                 Write-Host $TimeNow : "Creating lockfile.lock -- This file will be removed once the worker restarts" -ForegroundColor Red
-                Write-Output "Update in Progress! Do not Delete unless update fails." | Out-File $path\lockfile.lock
+                Write-Output "$PC" | Out-File $path\lockfile.lock
                 Write-Host $TimeNow : "Restarting worker before updating additional files." -ForegroundColor Green 
                 ./profit_manager.ps1
             }
@@ -194,7 +194,7 @@ if ($get_settings.update_check -eq 'yes') {
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
             
-            Write-Host $TimeNow : "Importing settings from coin_settings.conf: $coin_settings_path" -ForegroundColor Yellow
+            Write-Host $TimeNow : "Importing settings from coin_settings.conf." -ForegroundColor Yellow
             # Copy user's settings from original config files to new config files.
             $original_coin_settings = Get-Content $coin_settings_path -raw | ConvertFrom-Json
             $original_coin_settings.default_coin = $original_coin_settings.default_coin
@@ -204,7 +204,7 @@ if ($get_settings.update_check -eq 'yes') {
             $original_coin_settings | ConvertTo-Json -Depth 10 | set-content 'coin_settings.conf'
             Start-Sleep 2
             
-            Write-Host $TimeNow : "Importing settings from settings.conf: $settings_path" -ForegroundColor Yellow
+            Write-Host $TimeNow : "Importing settings from settings.conf." -ForegroundColor Yellow
             $original_settings = Get-Content $settings_path -raw | ConvertFrom-Json
             $original_settings.path = $original_settings.path
             $original_settings.static_mode = $original_settings.static_mode
@@ -230,6 +230,12 @@ if ($get_settings.update_check -eq 'yes') {
             }
             else {
                 $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
+            }
+            if ($original_settings.enable_coin_data -ne $null) {
+                $original_settings.enable_coin_data = $original_settings.enable_coin_data
+            }
+            else {
+                $original_settings | add-member -Name "enable_coin_data" -value "yes" -MemberType NoteProperty
             }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
