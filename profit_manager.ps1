@@ -108,17 +108,17 @@ if ($get_settings.update_check -eq 'yes') {
     $web_version = $check_update.version
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
-    Write-Host $TimeNow : "Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
-    Write-Host $TimeNow : "      Web version: SCPM v$web_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow : Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow : Web version: SCPM v$web_version" -ForegroundColor Yellow
     # check to see if running the newest version
     if ($web_version -gt $installed_settings_version) {
-        Write-Host $TimeNow : "An update is available!" -ForegroundColor Cyan
+        Write-Host "$TimeNow : An update is available!" -ForegroundColor Cyan
         # If automatic updates are allowed.
         if ($get_settings.allow_automatic_updates -eq 'yes') {
             # If lockfile exists skip, otherwise download new profit_manager.ps1 file
             if (Test-Path $path\lockfile.lock) {
-                Remove-Item lockfile.lock
-                Start-Sleep 2
+                $read_lockfile = Get-Content $path\lockfile.lock -First 1
+                Write-Host "$TimeNow : Lockfile is owned by $read_lockfile." 
             }
             else {
                 # Download updates from server
@@ -250,7 +250,7 @@ if ($get_settings.update_check -eq 'yes') {
         }
     }
     else {
-        Write-Host $TimeNow : "You are running the newest version!" -ForegroundColor Green
+        Write-Host "$TimeNow : You are running the newest version!" -ForegroundColor Green
     }
 }
 
@@ -301,48 +301,65 @@ else {
     # Pick the most profitable coin to mine from the top 10 list.
     Write-Host "$TimeNow : Connecting to https://$update_url and retrieving the Top 10 List." -ForegroundColor Magenta
     $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
-    if ($get_coin.top_list.symbol[0] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[0]
-        $top_list_position = 1
+    
+    # Cycle through the API's top list of coins, report error & restart if null.
+    Try {
+        if ($get_coin.top_list.symbol[0] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[0]
+            $top_list_position = 1
+        }
+        elseif ($get_coin.top_list.symbol[1] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[1]
+            $top_list_position = 2
+        }
+        elseif ($get_coin.top_list.symbol[2] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[2]
+            $top_list_position = 3
+        }
+        elseif ($get_coin.top_list.symbol[3] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[3]
+            $top_list_position = 4
+        }
+        elseif ($get_coin.top_list.symbol[4] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[4]
+            $top_list_position = 5
+        }
+        elseif ($get_coin.top_list.symbol[5] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[5]
+            $top_list_position = 6
+        }
+        elseif ($get_coin.top_list.symbol[6] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[6]
+            $top_list_position = 7
+        }
+        elseif ($get_coin.top_list.symbol[7] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[7]
+            $top_list_position = 8
+        }
+        elseif ($get_coin.top_list.symbol[8] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[8]
+            $top_list_position = 9
+        }
+        elseif ($get_coin.top_list.symbol[9] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[9]
+            $top_list_position = 10
+        }
+        else {
+            $best_coin = $get_coin_settings.default_coin
+        }
     }
-    elseif ($get_coin.top_list.symbol[1] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[1]
-        $top_list_position = 2
-    }
-    elseif ($get_coin.top_list.symbol[2] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[2]
-        $top_list_position = 3
-    }
-    elseif ($get_coin.top_list.symbol[3] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[3]
-        $top_list_position = 4
-    }
-    elseif ($get_coin.top_list.symbol[4] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[4]
-        $top_list_position = 5
-    }
-    elseif ($get_coin.top_list.symbol[5] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[5]
-        $top_list_position = 6
-    }
-    elseif ($get_coin.top_list.symbol[6] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[6]
-        $top_list_position = 7
-    }
-    elseif ($get_coin.top_list.symbol[7] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[7]
-        $top_list_position = 8
-    }
-    elseif ($get_coin.top_list.symbol[8] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[8]
-        $top_list_position = 9
-    }
-    elseif ($get_coin.top_list.symbol[9] -in $Array.ToUpper()) {
-        $best_coin = $get_coin.top_list.symbol[9]
-        $top_list_position = 10
-    }
-    else {
-        $best_coin = $get_coin_settings.default_coin
+    Catch {
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+        Write-Host "$TimeNow : Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+        Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs."
+        Start-Sleep 10
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        ./profit_manager.ps1
     }
 }
 # Establish the date and time
@@ -406,18 +423,19 @@ $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -
 if ($symbol -ne $null) {
 }
 else {
+
+
     # Write to the log.
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
         Write-Output "$TimeNow : Configuration error! Coin list does not match wallet list." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
     [console]::beep(2000, 500)
-    Write-Host "$TimeNow : ERROR! You are setup to mine $best_coin, but you have not configured a wallet in settings.conf." -ForegroundColor Red
+    Write-Host "$TimeNow : ERROR! You are setup to mine $best_coin, but there's no wallet config." -ForegroundColor Red
     [console]::beep(2000, 500)
     Write-Host "$TimeNow : You can leave this window open while adding the parameters." -ForegroundColor Red
     [console]::beep(2000, 500)
-    Write-Host "$TimeNow : When you are done, hit enter. The worker will reload, and run the software automatically.
-    
-    " -ForegroundColor Cyan
+    Write-Host "$TimeNow : When you are done, hit enter." -ForegroundColor Cyan
+    Write-Host "  "
     pause
     #The miner will reload the Powershell file. You can make changes while it's running, and they will be applied on reload.
     .\profit_manager.ps1
