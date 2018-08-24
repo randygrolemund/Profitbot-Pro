@@ -190,7 +190,11 @@ if ($get_settings.update_check -eq 'yes') {
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
             $url = "https://$update_url/releases/Instructions.pdf"
-            $output = "$path\Instructions.pdf.pdf"
+            $output = "$path\Instructions.pdf"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/profit_manager.ps1"
+            $output = "$path\profit_manager.ps1"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
             
