@@ -352,6 +352,7 @@ else {
         }
         else {
             $best_coin = $get_coin_settings.default_coin
+            $top_list_position = 1000
         }
     }
     Catch {
@@ -393,7 +394,13 @@ if ($static_mode -eq 'yes') {
 else {
     #Check if the best coin to mine is in your list.
     if ($best_coin -in $Array.ToUpper()) {
-        Write-Host "$TimeNow : You will be mining coin number $top_list_position in the API list." -ForegroundColor Magenta
+        if($top_list_position -eq 1000){
+            Write-Host "$TimeNow : No top list coint match. You will be mining your default coin." -ForegroundColor Magenta  
+        }
+        else {
+            Write-Host "$TimeNow : You will be mining coin number $top_list_position in the API list." -ForegroundColor Magenta  
+        }
+        
     }
     else {
         Write-Host "$TimeNow : The best coin to mine is $best_coin but it's not in your list" -ForegroundColor red
