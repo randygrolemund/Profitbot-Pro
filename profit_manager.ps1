@@ -118,7 +118,19 @@ if ($get_settings.update_check -eq 'yes') {
             # If lockfile exists skip, otherwise download new profit_manager.ps1 file
             if (Test-Path $path\lockfile.lock) {
                 $read_lockfile = Get-Content $path\lockfile.lock -First 1
-                Write-Host "$TimeNow : Lockfile is owned by $read_lockfile." 
+                Write-Host "$TimeNow : Lockfile is owned by $read_lockfile."
+                if($PC -ne $read_lockfile){
+                    Write-Host "$TimeNow : Another worker has started the update process, waiting 30 seconds." -ForegroundColor Red
+                    # Write to log
+                    if ($enable_log -eq 'yes'){
+                        # Write to the log
+                        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log){
+                            Write-Output $TimeNow : "Pausing while worker $read_lockfile performs software upgrade." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                        }
+                    }
+                    Start-Sleep 30
+                    ./profit_manager.ps1
+                }
             }
             else {
                 # Download updates from server
