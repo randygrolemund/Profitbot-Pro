@@ -17,8 +17,8 @@ Write-Host "
      |---------------------------------------------------------------------------------------|
      |                       Free to use, donations kindly accepted.                         |
      |                                                                                       |
-     |               ETH Address: 0xA58B04A5Dc2F3934cB54E087b927268836Ac0159                 |
-     |                   BTC Address: 3Pz3JPxGsQxsyJT7km58NTohC9C16ndpAN                     |
+     |               ETH Address: 0x32cd01077b6cc9cedb17feadfc24cce0a7b775f8                 |
+     |                   BTC Address: 1EUFmXVcyWR85c57z9wtr5Q6KxyBbR2UUn                     |
      |                                                                                       |
      |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
      |                                                                                       |
@@ -321,7 +321,7 @@ if ($miner_type -eq 'xmr-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
 }
 
-Write-Host "$TimeNow : Setting Mining Application to $miner_type.toupper()"
+Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
 # This section establishes a fixed diff for each worker. The format depends on which pool you connect to.
 if ($set_diff_config -eq 'yes') {
@@ -505,7 +505,7 @@ Do {
     }
     else {
         if ($static_mode -eq "no") {
-            Write-Host "$TimeNow : Currently mining $best_coin : Checking again at $Time_Only." -ForegroundColor White
+            Write-Host "$TimeNow : Currently mining $best_coin. Checking profits again at $Time_Only." -ForegroundColor White
         }
     }
     # Check if worker url is working, then get the current hashrate from mining software

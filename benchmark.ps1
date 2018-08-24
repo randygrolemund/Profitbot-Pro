@@ -6,8 +6,8 @@ Write-Host "
      |---------------------------------------------------------------------------------------|
      |                       Free to use, donations kindly accepted.                         |
      |                                                                                       |
-     |               ETH Address: 0xA58B04A5Dc2F3934cB54E087b927268836Ac0159                 |
-     |                   BTC Address: 3Pz3JPxGsQxsyJT7km58NTohC9C16ndpAN                     |
+     |               ETH Address: 0x32cd01077b6cc9cedb17feadfc24cce0a7b775f8                 |
+     |                   BTC Address: 1EUFmXVcyWR85c57z9wtr5Q6KxyBbR2UUn                     |
      |                                                                                       |
      |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
      |                                                                                       |
@@ -28,7 +28,7 @@ $version = $get_settings.version
 $Host.UI.RawUI.WindowTitle = "Profitbot Pro Benchmark Tool created by Bearlyhealz v$version"
 
 $benchmark_minute = $get_settings.benchmark_time
-Write-Host $timenow "Setting benchmark to $benchmark_minute minutes."
+Write-Host "$TimeNow Setting benchmark to $benchmark_minute minutes."
 
 #Pull in the computer name from Windows.
 $pc = $env:ComputerName
@@ -43,16 +43,16 @@ $pause_before_mining = 10
 $path = $get_settings.path
 $update_url = $get_settings.update_url
 
-Write-Host $TimeNow : "After benchmarking completes ($benchmark_minute minutes per worker), the worker will begin mining" -ForegroundColor Magenta
+Write-Host "$TimeNow : Benchmarking each coin for 3 mins. Resume mining afterwards." -ForegroundColor Magenta
 
 #Check folder structure, create missing folders.
 if (Test-Path $path\$pc -PathType Container) {
-    Write-Host $TimeNow : "Checking Folder Structure. (OK!)" -ForegroundColor green
-    Write-Host $TimeNow : "Cleaning up old conf files. (OK!)" -ForegroundColor green
+    Write-Host "$TimeNow : Checking Folder Structure. (OK!)" -ForegroundColor green
+    Write-Host "$TimeNow : Cleaning up old conf files. (OK!)" -ForegroundColor green
     Remove-Item $path\$pc\*.conf
 }
 else {
-    Write-Host $TimeNow : "Creating Folder for $pc" -ForegroundColor yellow
+    Write-Host "$TimeNow : Creating Folder for $pc" -ForegroundColor yellow
     $fso = new-object -ComObject scripting.filesystemobject
     $fso.CreateFolder("$path\$pc")
 }
@@ -94,11 +94,11 @@ foreach ($element in $array) {
     }
     $worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
     if ($worker_running) {
-        Write-Host $timenow : "Worker already running, stopping process." -ForegroundColor Red
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
         # try gracefully first
         $worker_running.CloseMainWindow() | out-null
         # kill after five seconds
-        Write-Host $timenow : "Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
         Start-Sleep $stop_worker_delay
         if (!$worker_running.HasExited) {
             $worker_running | Stop-Process -Force | out-null
@@ -108,7 +108,7 @@ foreach ($element in $array) {
     write-host "
     
     "
-    write-host $timenow : "Preparing to benchmark $element.... please wait $benchmark_minute minutes." -ForegroundColor Yellow
+    Write-Host "$TimeNow : Preparing to benchmark $element.... please wait $benchmark_minute minutes." -ForegroundColor Yellow
 
     # Configure the attributes for the mining software.
     $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc --cpu $path\$pc\cpu.txt --amd $path\$pc\$amd_config_file --nvidia $path\$pc\nvidia.txt"
@@ -117,25 +117,25 @@ foreach ($element in $array) {
     if (Test-Path $path\$pc\cpu.txt) {
     
         if ($get_settings.delete_cpu_txt -eq 'yes') {
-            Write-Host $timenow : "Purging old cpu.txt file (OK!)" -ForegroundColor Green
+            Write-Host "$TimeNow : Purging old cpu.txt file (OK!)" -ForegroundColor Green
             Remove-Item $path\$pc\cpu.txt
         }
     }
     else {
-        Write-Host $TimeNow : "Could not find cpu.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
+        Write-Host "$TimeNow : Could not find cpu.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
     }
 
     # Check for pools.txt file, delete if exists, will create a new one once mining app launches.
     if (Test-Path $path\$pc\pools.txt) {
-        Write-Host $timenow : "Purging old Pools.txt file (OK!)" -ForegroundColor Green
+        Write-Host "$TimeNow : Purging old Pools.txt file (OK!)" -ForegroundColor Green
         del $path\$pc\pools.txt
     }
     else {
-        Write-Host $TimeNow : "Could not find Pools.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
+        Write-Host "$TimeNow : Could not find Pools.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
     }
-    Write-Host $timenow : "Establishing connection to:" $pool
-    Write-Host $timenow : "Switching Algo to:" $Algo
-    Write-Host $timenow : "Authorizing inbound funds to Wallet."
+    Write-Host "$TimeNow : Establishing connection to:" $pool
+    Write-Host "$TimeNow : Switching Algo to:" $Algo
+    Write-Host "$TimeNow : Authorizing inbound funds to Wallet."
 
     # Get the time and date.
     $TimeNow = Get-Date
@@ -144,13 +144,13 @@ foreach ($element in $array) {
     If (Test-Path -Path $Path\$pc\$element.conf) {
         $set_diff_config = "yes"
         $set_diff_value = Get-Content -Path "$path\$pc\$element.conf"
-        write-host $timenow : "Found old diff config file, deleting!" -ForegroundColor red
+        Write-Host "$TimeNow : Found old diff config file, deleting!" -ForegroundColor red
         Remove-Item $path\$pc\$element.conf
     }
     else { 
-        write-host $timenow : "Diff config file for $element is not present, no need for cleanup." -ForegroundColor red
+        Write-Host "$TimeNow : Diff config file for $element is not present, no need for cleanup." -ForegroundColor red
     }
-    Write-Host $timenow : "Starting XMR-Stak in another window."
+    Write-Host "$TimeNow : Starting XMR-Stak in another window."
     # Start the mining software, wait for the process to begin.
     start-process -FilePath $miner_app -args $worker_settings -WindowStyle Minimized
     Start-Sleep -Seconds 60
@@ -165,7 +165,7 @@ foreach ($element in $array) {
 
     #If worker is displaying hashrate, calculate fixed diff.
     if ($worker_hashrate -match "[0-9]") {
-        Write-Host $TimeNow : "Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
+        Write-Host "$TimeNow : Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
         Start-Sleep -Seconds $benchmark_timer
         
         # Get the time and date.
@@ -176,9 +176,9 @@ foreach ($element in $array) {
         $worker_hashrate = $get_hashrate.hashrate.total[0]
         $my_results = $get_hashrate.results.shares_good
         $suggested_diff = [math]::Round($worker_hashrate * 30)
-        Write-Host $TimeNow : "Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
-        Write-Host $TimeNow : "Creating difficulty config file for $element on this worker." -ForegroundColor yellow
-        Write-Host $TimeNow : "We've calulated the fixed difficulty to be $suggested_diff for this algo." -ForegroundColor green
+        Write-Host "$TimeNow : Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
+        Write-Host "$TimeNow : Creating difficulty config file for $element on this worker." -ForegroundColor yellow
+        Write-Host "$TimeNow : We've calulated the fixed difficulty to be $suggested_diff for this algo." -ForegroundColor green
     
         # Create Diff/Hashrate objects in json
         [hashtable]$build_json = @{}
@@ -189,7 +189,7 @@ foreach ($element in $array) {
         # Wait for the executable to stop before continuing.
         $worker_running = Get-Process $miner_type 
         if ($worker_running) {
-            Write-Host $timenow : "Stopping Worker process." -ForegroundColor Red
+            Write-Host "$TimeNow : Stopping Worker process." -ForegroundColor Red
             # try gracefully first
             $worker_running.CloseMainWindow()  | Out-Null
             # kill after five seconds
@@ -205,9 +205,9 @@ foreach ($element in $array) {
 Write-Host "
     
 "
-Write-Host $TimeNow : "Benchmarking is now complete, it is safe to close this window." -ForegroundColor Green
+Write-Host "$TimeNow : Benchmarking is now complete, it is safe to close this window." -ForegroundColor Green
 Write-Output "Creating file to let the worker know that a benchmark has been completed." | Out-File $path\$pc\system_benchmark.success
-Write-Host $TimeNow : "Starting Profit Manager in $pause_before_mining seconds. (CTRL+C to exit now)" -ForegroundColor Green
+Write-Host "$TimeNow : Starting Profit Manager in $pause_before_mining seconds. (CTRL+C to exit now)" -ForegroundColor Green
 
 Start-Sleep $pause_before_mining
 ./profit_manager.ps1
