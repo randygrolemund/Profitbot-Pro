@@ -94,7 +94,7 @@ if ($enable_log -eq 'yes') {
         Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
 }
-
+    
 # ************************************************************************************************************************************
 
 #Settings for Updater
@@ -108,11 +108,146 @@ if ($get_settings.update_check -eq 'yes') {
     $web_version = $check_update.version
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
-    Write-Host "$TimeNow : Installed version: Profitbot Pro v$installed_settings_version" -ForegroundColor Yellow
-    Write-Host "$TimeNow :       Web version: Profitbot Pro v$web_version" -ForegroundColor Yellow
-
-
+    Write-Host $TimeNow : "Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
+    Write-Host $TimeNow : "      Web version: SCPM v$web_version" -ForegroundColor Yellow
+    # check to see if running the newest version
+    if ($web_version -gt $installed_settings_version) {
+        Write-Host $TimeNow : "An update is available!" -ForegroundColor Cyan
+        # If automatic updates are allowed.
+        if ($get_settings.allow_automatic_updates -eq 'yes') {
+            # If lockfile exists skip, otherwise download new profit_manager.ps1 file
+            if (Test-Path $path\lockfile.lock) {
+                Remove-Item lockfile.lock
+                Start-Sleep 2
+            }
+            else {
+                # Download updates from server
+                $url = "https://$update_url/releases/profit_manager.ps1"
+                $output = "$path\profit_manager.ps1"
+                Invoke-WebRequest -Uri $url -OutFile $output
+                Start-Sleep 1
+                #Restart Worker and pull in new profit_manager.ps1 before updating the rest of the files.
+                Write-Host $TimeNow : "Creating lockfile.lock -- This file will be removed once the worker restarts" -ForegroundColor Red
+                Write-Output "Update in Progress! Do not Delete unless update fails." | Out-File $path\lockfile.lock
+                Write-Host $TimeNow : "Restarting worker before updating additional files." -ForegroundColor Green 
+                ./profit_manager.ps1
+            }
+            if ($installed_settings_version -ne $installed_coin_settings_version) {
+                Write-Host $TimeNow : "Version mismatch. Settings.conf is v$installed_settings_version and coin_settings.conf is $installed_coin_settings_version." -ForegroundColor Red
+                Write-Host $TimeNow : "If automatic upadates are enabled, we will attempt to resolve the issue for you." -ForegroundColor Red
+            }
+            # Check if Previous Version folder exists, otherwise create
+            if (Test-Path $path\Previous_Version -PathType Container) {
+                Write-Host $TimeNow : "Checking if the folder Previous_Version exists. (OK!)" -ForegroundColor green
+            }
+            else {
+                Write-Host $TimeNow : "Creating Previous_Version folder." -ForegroundColor yellow
+                $fso = new-object -ComObject scripting.filesystemobject
+                $fso.CreateFolder("$path\Previous_Version")
+            }            # Check if Backups folders exists, otherwise create
+            if (Test-Path $path\Backups -PathType Container) {
+                
+                #Test if Previous Versions is empty
+                $directoryInfo = Get-ChildItem $path\Previous_Version | Measure-Object
+                if ($directoryInfo.Count -eq 0) {
+                    Write-Host $TimeNow : "The are no files staged for backup. We will check on the next update cycle." -ForegroundColor Red
+                }
+                else {
+                    Write-Host $TimeNow : "Adding previously backed up files to archive. (OK!)" -ForegroundColor Green
+                    $source = "$path\Previous_Version"
+                    $destination = "$path\Backups\backup_$(get-date -f 'yyyy-MM-dd_hh_mm_ss').zip"
+                    Add-Type -assembly "system.io.compression.filesystem"
+                    [io.compression.zipfile]::CreateFromDirectory($Source, $destination) 
+                }
+            }
+            else {
+                Write-Host $TimeNow : "Creating Backups folder." -ForegroundColor yellow
+                $fso = new-object -ComObject scripting.filesystemobject
+                $fso.CreateFolder("$path\Backups")
+            }
+                    
+            # Copy files from root to previous_version
+            Write-Host $TimeNow : "Backing up your current files to Previous_Version." -ForegroundColor Yellow
+            Copy-Item -Path $path\*.conf -Destination $path\Previous_Version -force
+            Copy-Item -Path $path\*.ps1 -Destination $path\Previous_Version -force
+            Write-Host $TimeNow : "Downloading updates...." -ForegroundColor Cyan
+            
+            # Download Additional Updates
+            $url = "https://$update_url/releases/benchmark.ps1"
+            $output = "$path\benchmark.ps1"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/settings.conf"
+            $output = "$path\settings.conf"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/coin_settings.conf"
+            $output = "$path\coin_settings.conf"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/config.txt"
+            $output = "$path\config.txt"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/Instructions.pdf"
+            $output = "$path\Instructions.pdf.pdf"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            
+            Write-Host $TimeNow : "Importing settings from coin_settings.conf: $coin_settings_path" -ForegroundColor Yellow
+            # Copy user's settings from original config files to new config files.
+            $original_coin_settings = Get-Content $coin_settings_path -raw | ConvertFrom-Json
+            $original_coin_settings.default_coin = $original_coin_settings.default_coin
+            $original_coin_settings.my_coins = $original_coin_settings.my_coins
+            $original_coin_settings.mining_params = $original_coin_settings.mining_params
+            $original_coin_settings.version = $web_version
+            $original_coin_settings | ConvertTo-Json -Depth 10 | set-content 'coin_settings.conf'
+            Start-Sleep 2
+            
+            Write-Host $TimeNow : "Importing settings from settings.conf: $settings_path" -ForegroundColor Yellow
+            $original_settings = Get-Content $settings_path -raw | ConvertFrom-Json
+            $original_settings.path = $original_settings.path
+            $original_settings.static_mode = $original_settings.static_mode
+            $original_settings.update_check = $original_settings.update_check
+            $original_settings.allow_automatic_updates = $original_settings.allow_automatic_updates
+            $original_settings.update_url = "api.profitbotpro.com"
+            $original_settings.enable_logging = $original_settings.enable_logging
+            $original_settings.log_age = $original_settings.log_age
+            $original_settings.delete_cpu_txt = $original_settings.delete_cpu_txt
+            $original_settings.mining_timer = $original_settings.mining_timer
+            $original_settings.sleep_seconds = $original_settings.sleep_seconds
+                
+            $original_settings.voice = $original_settings.voice
+            $original_settings.version = $web_version
+            if ($original_settings.stop_worker_delay -ne $null) {
+                $original_settings.stop_worker_delay = $original_settings.stop_worker_delay
+            }
+            else {
+                $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
+            }
+            if ($original_settings.benchmark_time -ne $null) {
+                $original_settings.benchmark_time = $original_settings.benchmark_time
+            }
+            else {
+                $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
+            }
+            $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
+            
+            Start-Sleep 2
+            
+            Write-Host $TimeNow : "Updates installed! Restarting worker." -ForegroundColor Green
+            # Pull in settings from file
+            $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Json
+            $get_coin_settings = Get-Content -Path "coin_settings.conf" | Out-String | ConvertFrom-Json
+            $version = $get_settings.version
+            ./profit_manager.ps1
+        }
+    }
+    else {
+        Write-Host $TimeNow : "You are running the newest version!" -ForegroundColor Green
+    }
 }
+
 # ************************************************************************************************************************************
 
 # If this is the 1st time running, force benchmark testing.
