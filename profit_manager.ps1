@@ -611,7 +611,7 @@ if ($static_mode -eq 'no') {
 if ($not_in_list -eq 'yes') {
     $TimeNow = Get-Date
     Write-Host "$TimeNow : Worker is set to mine default coin: $best_coin." -ForegroundColor cyan
-    Write-Host "$TimeNow : Checking again at $Time" -ForegroundColor Cyan
+    Write-Host "$TimeNow : Checking again at $Time_Only" -ForegroundColor Cyan
     Start-Sleep -Seconds $mine_seconds
 }
 Write-Host " "
