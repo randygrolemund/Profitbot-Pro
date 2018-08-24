@@ -125,7 +125,7 @@ if ($get_settings.update_check -eq 'yes') {
                     if ($enable_log -eq 'yes'){
                         # Write to the log
                         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log){
-                            Write-Output $TimeNow : "Pausing while worker $read_lockfile performs software upgrade." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                            Write-Output "$TimeNow : Pausing while worker $read_lockfile performs software upgrade." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                         }
                     }
                     Start-Sleep 30
@@ -239,6 +239,8 @@ if ($get_settings.update_check -eq 'yes') {
             }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
+            Write-Host "$TimeNow : Removing lockfile." -ForegroundColor White
+            Remove-Item lockfile.lock
             Start-Sleep 2
             
             Write-Host "$TimeNow : Updates installed! Restarting worker." -ForegroundColor Green
