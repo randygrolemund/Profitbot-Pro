@@ -608,18 +608,15 @@ if ($check_worker_running -eq $null) {
 }
 # Mine for established time, then look to see if there's a new coin.
 $TimeEnd = $timeStart.addminutes($mine_minutes)
-$Time_Only = ($TimeEnd).ToString("HH:MM")
 Write-Host " "
 Write-Host "$TimeNow : Started Worker" -ForegroundColor Green
 if ($static_mode -eq 'no') {
-    Write-Host "$TimeNow : Check Profitiability again at $Time_only" -ForegroundColor Green
+    Write-Host "$TimeNow : Check Profitiability again: $TimeEnd" -ForegroundColor Green
 }
 # If we are mining the default coin, pause for 5 minutes.
 if ($not_in_list -eq 'yes') {
     $TimeNow = Get-Date
     Write-Host "$TimeNow : Worker is set to mine default coin: $best_coin." -ForegroundColor cyan
-    Write-Host "$TimeNow : Checking again at $Time_Only" -ForegroundColor Cyan
-    Start-Sleep -Seconds $mine_seconds
 }
 Write-Host " "
 # Begin a loop to check if the current coin is the best coin to mine. If not, restart the app and switchin coins.
@@ -677,7 +674,7 @@ Do {
     }
     else {
         if ($static_mode -eq "no") {
-            Write-Host "$TimeNow : Currently mining $best_coin. Checking profits again at $Time_Only." -ForegroundColor White
+            Write-Host "$TimeNow : Currently mining $best_coin. Checking profits again: $TimeEnd." -ForegroundColor White
         }
     }
     # Check if worker url is working, then get the current hashrate from mining software
