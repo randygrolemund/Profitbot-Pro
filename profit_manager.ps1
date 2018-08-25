@@ -363,8 +363,10 @@ else {
         Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs."
         Start-Sleep 10
         # Write to the log.
-        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
             Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
         }
         ./profit_manager.ps1
     }
@@ -679,9 +681,26 @@ Do {
     }
     # Check if worker url is working, then get the current hashrate from mining software
     $TimeNow = Get-Date
-    $HTTP_Request = [System.Net.WebRequest]::Create('http://127.0.0.1:8080/api.json')
-    $HTTP_Response = $HTTP_Request.GetResponse()
-    $HTTP_Status = [int]$HTTP_Response.StatusCode
+    try {
+        $HTTP_Request = [System.Net.WebRequest]::Create('http://127.0.0.1:8080/api.json')
+        $HTTP_Response = $HTTP_Request.GetResponse()
+        $HTTP_Status = [int]$HTTP_Response.StatusCode
+    }
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+        Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+        Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+        # Write to the log.
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+        }
+        Start-Sleep 5
+        ./profit_manager.ps1
+    } 
 
     # Refresh coin values
     $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
@@ -719,6 +738,12 @@ Do {
         Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
         Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
         Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+        # Write to the log.
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+        }
         Start-Sleep 5
         ./profit_manager.ps1
     }
