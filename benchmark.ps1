@@ -108,7 +108,7 @@ foreach ($element in $array) {
     write-host "
     
     "
-    Write-Host "$TimeNow : Preparing to benchmark $element.... please wait $benchmark_minute minutes." -ForegroundColor Yellow
+    Write-Host "$TimeNow : Preparing to benchmark $element.... please wait $benchmark_minute minute." -ForegroundColor Yellow
 
     # Configure the attributes for the mining software.
     $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc --cpu $path\$pc\cpu.txt --amd $path\$pc\$amd_config_file --nvidia $path\$pc\nvidia.txt"
