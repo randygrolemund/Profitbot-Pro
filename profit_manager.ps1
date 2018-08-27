@@ -733,7 +733,7 @@ Do {
 
     # Get the hashrate from XMR-Stak. If error state occurs, restart the worker.
     Try {
-        $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get 
+        $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
     }
     Catch {
         $ErrorMessage = $_.Exception.Message
@@ -755,8 +755,30 @@ Do {
     $my_results = $get_hashrate.results.shares_good
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
+
+        # Get the hashrate for each thread and write to the log.
+        $count = $get_hashrate.hashrate.threads.count
+        $start_thread = 1
+        $thread_count = $count -1
+        $thread_hashrate = $get_hashrate.hashrate.threads[0][0]
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Thread 0 - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        foreach ($_ in $start_thread..$thread_count){
+            $i++
+            $a = "Thread "
+            $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+        }
+        
+
         # Print the worker hashrate and accepted share to screen.
         Write-Host "$TimeNow : Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Cyan
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Total Worker Hashrate - $worker_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
         if ($get_settings.enable_coin_data -eq 'yes') {
             # Caclulate estimated shares over 24 hours if not null
             Try {
@@ -804,6 +826,11 @@ Do {
         Write-Host "$TimeNow : Waiting on worker to display hashrate." -ForegroundColor Yellow
     }
     # Clear variables
+    Remove-Variable count -ErrorAction SilentlyContinue
+    Remove-Variable start_thread -ErrorAction SilentlyContinue
+    Remove-Variable thread_count -ErrorAction SilentlyContinue
+    Remove-Variable a -ErrorAction SilentlyContinue
+    Remove-Variable i -ErrorAction SilentlyContinue
     Remove-Variable get_coin -ErrorAction SilentlyContinue
     Remove-Variable last_updated -ErrorAction SilentlyContinue
     Start-Sleep -Seconds $set_sleep
