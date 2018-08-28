@@ -109,7 +109,7 @@ if ($get_settings.update_check -eq 'yes') {
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
     Write-Host "$TimeNow : Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
-    Write-Host "$TimeNow : Web version: SCPM v$web_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow :       Web version: SCPM v$web_version" -ForegroundColor Yellow
     # check to see if running the newest version
     if ($web_version -gt $installed_settings_version) {
         Write-Host "$TimeNow : An update is available!" -ForegroundColor Cyan
@@ -488,7 +488,7 @@ if (Test-Path $path\$pc\pools.txt) {
     del $path\$pc\pools.txt
 }
 else {
-    Write-Host "$TimeNow : Could not find Pools.txt file, there is nothing to delete. (OK!)" -ForegroundColor Red
+    Write-Host "$TimeNow : Could not find Pools.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
 }
 # These are the default apps used for mining. Updated software can be found at http://github.com/fireice-uk/xmr-stak/releases.
 if ($miner_type -eq 'xmr-stak') {
@@ -756,22 +756,28 @@ Do {
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
 
-        # Get the hashrate for each thread and write to the log.
-        $count = $get_hashrate.hashrate.threads.count
-        $start_thread = 1
-        $thread_count = $count -1
-        $thread_hashrate = $get_hashrate.hashrate.threads[0][0]
-        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-            Write-Output "$TimeNow : Thread 0 - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        }
-        foreach ($_ in $start_thread..$thread_count){
-            $i++
-            $a = "Thread "
-            $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
+        try {
+            # Get the hashrate for each thread and write to the log.
+            $count = $get_hashrate.hashrate.threads.count
+            $start_thread = 1
+            $thread_count = $count -1
+            $thread_hashrate = $get_hashrate.hashrate.threads[0][0]
             if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                Write-Output "$TimeNow : Thread 0 - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+            foreach ($_ in $start_thread..$thread_count){
+                $i++
+                $a = "Thread "
+                $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                    Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    }
             }
         }
+        catch {
+            Write-Host "$Timenow : Cannot log thread data yet, worker is still warming up."
+        }
+        
         
 
         # Print the worker hashrate and accepted share to screen.
