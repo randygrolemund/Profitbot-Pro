@@ -761,7 +761,10 @@ Do {
             $count = $get_hashrate.hashrate.threads.count
             $start_thread = 1
             $thread_count = $count -1
-            $thread_hashrate = $get_hashrate.hashrate.threads[0][0]
+            if($get_hashrate.hashrate.threads[0][0] -ne $null){
+                $thread_hashrate = $get_hashrate.hashrate.threads[0][0]
+            }
+            
             if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                 Write-Output "$TimeNow : Thread 0 - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
             }
