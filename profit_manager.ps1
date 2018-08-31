@@ -309,15 +309,19 @@ else {
 
 # Pull correct data average type
 if($coin_data_age -eq "current"){
+    $live_update_url = $update_url
     $update_url = ($update_url + "/current_release.json")
 }
 elseif ($coin_data_age -eq "1hr") {
+    $live_update_url = $update_url
     $update_url = ($update_url + "/1hr_average.json")
 }
 elseif ($coin_data_age -eq "24hr") {
+    $live_update_url = $update_url
     $update_url = ($update_url + "/24hr_average.json")
 }
 elseif($coin_data_age -eq "1wk"){
+    $live_update_url = $update_url
     $update_url = ($update_url + "/1wk_average.json")
 }
 
@@ -736,7 +740,7 @@ Do {
     } 
 
     # Refresh coin values
-    $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
+    $get_coin = Invoke-RestMethod -Uri "https://$live_update_url" -Method Get 
     # Set coin variables from API
     $symbol = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
     $coin_name = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_name
@@ -798,13 +802,15 @@ Do {
             if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                 Write-Output "$TimeNow : Thread 0 - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
             }
-            foreach ($_ in $start_thread..$thread_count){
-                $i++
-                $a = "Thread "
-                $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
-                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                    Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                    }
+            if($start_thread -ne $null -and $thread_count -ne $null){
+                foreach ($_ in $start_thread..$thread_count){
+                    $i++
+                    $a = "Thread "
+                    $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
+                    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                        Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                        }
+                }
             }
         }
         catch {
@@ -854,7 +860,7 @@ Do {
                 ./profit_manager.ps1
             }
             Write-Host "$TimeNow : API data last refreshed: $last_updated (UTC)." -ForegroundColor White
-            Write-Host "$TimeNow : Network Difficulty: $difficulty." -ForegroundColor White
+            Write-Host "$TimeNow : Network Difficulty: $difficulty." $symbol ("$" + $coin_usd) -ForegroundColor DarkCyan
             Write-Host "$TimeNow : Estimated 24H Reward:" $reward_24H "Estimated 24H Earnings:"("$" + $earned_24H.tostring("00.00")) -ForegroundColor Green
         }
         if ($static_mode -eq 'yes') {
