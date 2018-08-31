@@ -241,6 +241,12 @@ if ($get_settings.update_check -eq 'yes') {
             else {
                 $original_settings | add-member -Name "enable_coin_data" -value "yes" -MemberType NoteProperty
             }
+            if ($original_settings.coin_data_age -ne $null) {
+                $original_settings.coin_data_age = $original_settings.coin_data_age
+            }
+            else {
+                $original_settings | add-member -Name "coin_data_age" -value "1hr" -MemberType NoteProperty
+            }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
             Write-Host "$TimeNow : Removing lockfile." -ForegroundColor White
@@ -287,13 +293,36 @@ $enable_voice = $get_settings.voice
 $static_mode = $get_settings.static_mode
 $config = "config.txt"
 
-# Check if param exists
+# Check if params exists
 if ($get_settings.stop_worker_delay -ne $null) {
     $stop_worker_delay = $get_settings.stop_worker_delay
 }
 else {
     $stop_worker_delay = 5
 }
+if ($get_settings.coin_data_age -ne $null) {
+    $coin_data_age = $get_settings.coin_data_age
+}
+else {
+    $coin_data_age = "1hr"
+}
+
+# Pull correct data average type
+if($coin_data_age -eq "current"){
+    $update_url = ($update_url + "/current_release.json")
+}
+elseif ($coin_data_age -eq "1hr") {
+    $update_url = ($update_url + "/1hr_average.json")
+}
+elseif ($coin_data_age -eq "24hr") {
+    $update_url = ($update_url + "/24hr_average.json")
+}
+elseif($coin_data_age -eq "1wk"){
+    $update_url = ($update_url + "/1wk_average.json")
+}
+
+
+
 #Pull in the computer name from Windows.
 $pc = $env:ComputerName
 
@@ -305,7 +334,8 @@ else {
     #list all the coins you plan to mine.
     $Array = $get_coin_settings.my_coins
     # Pick the most profitable coin to mine from the top 10 list.
-    Write-Host "$TimeNow : Connecting to https://$update_url and retrieving the Top 10 List." -ForegroundColor Magenta
+    Write-Host "$TimeNow : Connecting to https://$update_url." -ForegroundColor Magenta
+    Write-Host "$TimeNow : Retreiving list of coins." -ForegroundColor Magenta
     $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
     
     # Cycle through the API's top list of coins, report error & restart if null.
