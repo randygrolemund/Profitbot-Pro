@@ -197,6 +197,22 @@ if ($get_settings.update_check -eq 'yes') {
             $output = "$path\profit_manager.ps1"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
+            $url = "https://$update_url/releases/Profitbot_Pro.ico"
+            $output = "$path\Profitbot_Pro.ico"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/Profitbot_Pro.lnk"
+            $output = "$path\Profitbot_Pro.lnk"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/Profitbot_Pro.bat"
+            $output = "$path\Profitbot_Pro.bat"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+            $url = "https://$update_url/releases/License"
+            $output = "$path\License"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
             
             Write-Host "$TimeNow : Importing settings from coin_settings.conf." -ForegroundColor Yellow
             # Copy user's settings from original config files to new config files.
@@ -245,7 +261,7 @@ if ($get_settings.update_check -eq 'yes') {
                 $original_settings.coin_data_age = $original_settings.coin_data_age
             }
             else {
-                $original_settings | add-member -Name "coin_data_age" -value "1hr" -MemberType NoteProperty
+                $original_settings | add-member -Name "coin_data_age" -value "24hr" -MemberType NoteProperty
             }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
