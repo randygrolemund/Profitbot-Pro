@@ -209,10 +209,19 @@ if ($get_settings.update_check -eq 'yes') {
             $output = "$path\Profitbot_Pro.bat"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/License"
-            $output = "$path\License"
+            $url = "https://$update_url/releases/Benchmark.bat"
+            $output = "$path\Benchmark.bat"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
+            $url = "https://$update_url/releases/LICENSE"
+            $output = "$path\LICENSE"
+            Invoke-WebRequest -Uri $url -OutFile $output
+            Start-Sleep 1
+
+            # Remove old BAT file
+            if (Test-Path $path\Start_mining.bat) {
+                Remove-Item $path\Start_mining.bat
+            }
             
             Write-Host "$TimeNow : Importing settings from coin_settings.conf." -ForegroundColor Yellow
             # Copy user's settings from original config files to new config files.
