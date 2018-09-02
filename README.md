@@ -68,7 +68,7 @@ Coin_settings.conf file:
 
 - My_coins: This is a list of all the coins you want to mine. IT IS IMPORTANT to have a wallet for each of the coins in this list, or you will run in to errors. This file needs to be in JSON format, like in the example.
 
-- mining_params: This sections contains the information your worker needs to connect to the pool and mine. This needs to remain in JSON format.
+- mining_params: This section contains the information your worker needs to connect to the pool and mine. This needs to remain in JSON format.
 
 - Symbol: The symbol of the coin you want to mine. XTL, CCX, ELYA. You get the idea.
 
