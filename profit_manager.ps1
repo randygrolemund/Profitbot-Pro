@@ -553,8 +553,8 @@ else {
 if ($miner_type -eq 'xmr-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
 }
-if ($miner_type -eq 'xmr-stak-mkt') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak-MKT\xmr-stak.exe"
+if ($miner_type -eq 'festival-miner') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfest\festival-miner.exe"
 }
 
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
