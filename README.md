@@ -1,6 +1,6 @@
 # Profibot-Pro
 
-Welcome to Profitbot Pro 4.7.2
+Welcome to Profitbot Pro 4.8.0
 
 <b>What's new?</b>
 

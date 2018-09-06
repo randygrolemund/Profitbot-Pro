@@ -13,3 +13,8 @@ Miner-XMRmox/xmrstak_cuda_backend.lib
 Miner-XMRmox/xmrstak_opencl_backend.dll
 Miner-XMRmox/xmrstak_opencl_backend.exp
 Miner-XMRmox/xmrstak_opencl_backend.lib
+Miner-XMRstak/libeay32.dll
+Miner-XMRstak/ssleay32.dll
+Miner-XMRstak/xmr-stak.exe
+Miner-XMRstak/xmrstak_cuda_backend.dll
+Miner-XMRstak/xmrstak_opencl_backend.dll
