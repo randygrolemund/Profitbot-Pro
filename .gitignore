@@ -4,3 +4,12 @@ Miner-XMRfest/festival-miner.exe
 Miner-XMRfest/festival-miner-cuda-backend.dll
 Miner-XMRfest/festival-miner-opencl-backend.dll
 Miner-XMRfest/ssleay32.dll
+Miner-XMRmox/xmr-stak.exe
+Miner-XMRmox/xmr-stak-backend.lib
+Miner-XMRmox/xmr-stak-c.lib
+Miner-XMRmox/xmrstak_cuda_backend.dll
+Miner-XMRmox/xmrstak_cuda_backend.exp
+Miner-XMRmox/xmrstak_cuda_backend.lib
+Miner-XMRmox/xmrstak_opencl_backend.dll
+Miner-XMRmox/xmrstak_opencl_backend.exp
+Miner-XMRmox/xmrstak_opencl_backend.lib
