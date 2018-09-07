@@ -484,7 +484,7 @@ foreach ($gpu in Get-WmiObject Win32_VideoController) {
 }
 Write-Host "$TimeNow : Configured to Mine: $best_coin <--------" -ForegroundColor Magenta
 
-# Pull in worker config information from settings.conf
+# Pull in worker config information from coin_settings.conf
 $symbol = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
 $miner_type = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty software
 $diff_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty static_param
@@ -492,6 +492,7 @@ $algo = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_
 $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty pool
 $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty wallet
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
+$payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
 
 # Check if wallet param exists, if not then display error
 if ($symbol -ne $null) {
@@ -576,6 +577,9 @@ if ($set_diff_config -eq 'yes') {
     }
     if ($diff_config -eq '5') {
         Set-Variable -Name "fixed_diff" -Value ""
+    }
+    if ($diff_config -eq '6') {
+        Set-Variable -Name "fixed_diff" -Value ".$payment_id"
     }
 }
 else {
