@@ -355,7 +355,7 @@ elseif($coin_data_age -eq "1mo"){
 }
 elseif ($coin_data_age -eq "current_unlisted") {
     $live_update_url = $update_url
-    $update_url = ($update_url + "/current_unlisted_average.json")
+    $update_url = ($update_url + "/current_unlisted.json")
 }
 elseif ($coin_data_age -eq "1hr_unlisted") {
     $live_update_url = $update_url
