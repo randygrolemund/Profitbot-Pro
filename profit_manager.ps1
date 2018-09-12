@@ -433,6 +433,26 @@ else {
             $best_coin = $get_coin.top_list.symbol[9]
             $top_list_position = 10
         }
+        elseif ($get_coin.top_list.symbol[10] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[10]
+            $top_list_position = 11
+        }
+        elseif ($get_coin.top_list.symbol[11] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[11]
+            $top_list_position = 12
+        }
+        elseif ($get_coin.top_list.symbol[12] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[12]
+            $top_list_position = 13
+        }
+        elseif ($get_coin.top_list.symbol[13] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[13]
+            $top_list_position = 14
+        }
+        elseif ($get_coin.top_list.symbol[14] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.top_list.symbol[14]
+            $top_list_position = 15
+        }
         else {
             $best_coin = $get_coin_settings.default_coin
             $top_list_position = 1000
@@ -715,6 +735,21 @@ else {
     elseif ($get_coin_check.top_list.symbol[9] -in $Array.ToUpper()) {
         $best_coin_check = $get_coin_check.top_list.symbol[9]
     }
+    elseif ($get_coin_check.top_list.symbol[10] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.top_list.symbol[10]
+    }
+    elseif ($get_coin_check.top_list.symbol[11] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.top_list.symbol[11]
+    }
+    elseif ($get_coin_check.top_list.symbol[12] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.top_list.symbol[12]
+    }
+    elseif ($get_coin_check.top_list.symbol[13] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.top_list.symbol[13]
+    }
+    elseif ($get_coin_check.top_list.symbol[14] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.top_list.symbol[14]
+    }
     else {
         $best_coin_check = $get_coin_settings.default_coin
         $not_in_list = "yes"
@@ -799,6 +834,21 @@ Do {
                 }
                 elseif ($get_coin_check.top_list.symbol[9] -in $Array.ToUpper()) {
                     $best_coin_check = $get_coin_check.top_list.symbol[9]
+                }
+                elseif ($get_coin_check.top_list.symbol[10] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.top_list.symbol[10]
+                }
+                elseif ($get_coin_check.top_list.symbol[11] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.top_list.symbol[11]
+                }
+                elseif ($get_coin_check.top_list.symbol[12] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.top_list.symbol[12]
+                }
+                elseif ($get_coin_check.top_list.symbol[13] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.top_list.symbol[13]
+                }
+                elseif ($get_coin_check.top_list.symbol[14] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.top_list.symbol[14]
                 }
                 else {
                     $best_coin_check = $get_coin_settings.default_coin
