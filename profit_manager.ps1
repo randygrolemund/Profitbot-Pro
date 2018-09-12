@@ -349,6 +349,30 @@ elseif($coin_data_age -eq "1wk"){
     $live_update_url = $update_url
     $update_url = ($update_url + "/1wk_average.json")
 }
+elseif($coin_data_age -eq "1mo"){
+    $live_update_url = $update_url
+    $update_url = ($update_url + "/1mo_average.json")
+}
+elseif ($coin_data_age -eq "current_unlisted") {
+    $live_update_url = $update_url
+    $update_url = ($update_url + "/current_unlisted_average.json")
+}
+elseif ($coin_data_age -eq "1hr_unlisted") {
+    $live_update_url = $update_url
+    $update_url = ($update_url + "/1hr_unlisted_average.json")
+}
+elseif ($coin_data_age -eq "24hr_unlisted") {
+    $live_update_url = $update_url
+    $update_url = ($update_url + "/24hr_unlisted_average.json")
+}
+elseif($coin_data_age -eq "1wk_unlisted"){
+    $live_update_url = $update_url
+    $update_url = ($update_url + "/1wk_unlisted_average.json")
+}
+elseif($coin_data_age -eq "1mo_unlisted"){
+    $live_update_url = $update_url
+    $update_url = ($update_url + "/1mo_unlisted_average.json")
+}
 
 
 
