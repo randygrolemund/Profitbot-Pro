@@ -1007,8 +1007,10 @@ Do {
         catch {
             Write-Host "$Timenow : Cannot log thread data yet, worker is still warming up."
         }
-        
-        
+        # If coin value is 0.00, set to min LTC value
+        if($coin_usd -eq 0){
+            $coin_usd = 0.00000054
+        }
 
         # Print the worker hashrate and accepted share to screen.
         Write-Host "$TimeNow : Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Cyan
