@@ -272,6 +272,24 @@ if ($get_settings.update_check -eq 'yes') {
             else {
                 $original_settings | add-member -Name "coin_data_age" -value "24hr" -MemberType NoteProperty
             }
+            if ($original_settings.mine_cpu -ne $null) {
+                $original_settings.mine_cpu = $original_settings.mine_cpu
+            }
+            else {
+                $original_settings | add-member -Name "mine_cpu" -value "yes" -MemberType NoteProperty
+            }
+            if ($original_settings.mine_amd -ne $null) {
+                $original_settings.mine_amd = $original_settings.mine_amd
+            }
+            else {
+                $original_settings | add-member -Name "mine_amd" -value "yes" -MemberType NoteProperty
+            }
+            if ($original_settings.mine_nvidia -ne $null) {
+                $original_settings.mine_nvidia = $original_settings.mine_nvidia
+            }
+            else {
+                $original_settings | add-member -Name "mine_nvidia" -value "yes" -MemberType NoteProperty
+            }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
             Write-Host "$TimeNow : Removing lockfile." -ForegroundColor White
@@ -317,6 +335,9 @@ $set_sleep = $get_settings.sleep_seconds
 $enable_voice = $get_settings.voice
 $static_mode = $get_settings.static_mode
 $config = "config.txt"
+$mine_cpu = $get_settings.mine_cpu
+$mine_amd = $get_settings.mine_amd
+$mine_nvidia = $get_settings.mine_nvidia
 
 # Check if params exists
 if ($get_settings.stop_worker_delay -ne $null) {
@@ -692,8 +713,28 @@ if($miner_type -eq 'xmr-stak'){
     Remove-Variable worker_running
 }
 
+# Set switches for mining CPU, AMD, NVIDIA
+if($mine_cpu -eq "yes"){
+    $cpu_param = "--cpu $path\$pc\cpu.txt"
+}
+else {
+    $cpu_param = "--noCPU"
+}
+if($mine_amd -eq "yes"){
+    $amd_param = "--amd $path\$pc\$amd_config_file"
+}
+else {
+    $amd_param = "--noAMD"
+}
+if($mine_nvidia -eq "yes"){
+    $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
+}
+else {
+    $nvidia_param = "--noNVIDIA"
+}
+
 # Configure the attributes for the mining software.
-$worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc --cpu $path\$pc\cpu.txt --amd $path\$pc\$amd_config_file --nvidia $path\$pc\nvidia.txt"
+$worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
 
 Write-Host "$TimeNow : Starting $miner_type in another window."
 
