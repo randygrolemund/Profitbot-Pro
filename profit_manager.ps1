@@ -1032,6 +1032,7 @@ Do {
                 # Write to the log.
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                     Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    Write-Output "$TimeNow : Extra Error info: $worker_hashrate $difficulty $last_reward $coin_units ." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
                 ./profit_manager.ps1
             }           
