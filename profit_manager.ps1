@@ -561,8 +561,7 @@ else {
 }
 Write-Host "$TimeNow : Establishing connection to:" $pool
 Write-Host "$TimeNow : Switching Algo to:" $Algo
-Write-Host "$TimeNow : Authorizing inbound funds to Wallet:" -ForegroundColor Cyan
-Write-Host ("[" + $wallet + "]") -ForegroundColor Cyan
+Write-Host "$TimeNow : Authorizing inbound funds to Wallet:" ($wallet.SubString(0,35) + "...") -ForegroundColor Cyan
 
 # Verify Diff config file is present
 If (Test-Path -Path $Path\$pc\$symbol.conf) {
