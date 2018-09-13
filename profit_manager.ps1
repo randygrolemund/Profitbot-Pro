@@ -1018,13 +1018,13 @@ Do {
         if ($get_settings.enable_coin_data -eq 'yes') {
             # Caclulate estimated shares over 24 hours if not null
             Try {
-                $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 4)
+                $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 8)
             }
             Catch {
                 $ErrorMessage = $_.Exception.Message
                 $FailedItem = $_.Exception.ItemName
                 Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-                Write-Host "$TimeNow : Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+                Write-Host "$TimeNow : Waiting 10 seconds, then restarting the worker. (Reward 24H Error)" -ForegroundColor Yellow
                 Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs."
                 Start-Sleep 10
                 # Write to the log.
@@ -1035,13 +1035,13 @@ Do {
             }           
             # Caclulate daily profit in USD if not null
             Try {
-                $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 2)
+                $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 8)
             }
             Catch {
                 $ErrorMessage = $_.Exception.Message
                 $FailedItem = $_.Exception.ItemName
                 Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-                Write-Host "$TimeNow : Waiting 10 seconds, then restarting the worker. API data is likely missing." -ForegroundColor Yellow
+                Write-Host "$TimeNow : Waiting 10 seconds, then restarting the worker. (Earned 24H Error)" -ForegroundColor Yellow
                 Write-Host "$TimeNow : Occasionally, the worker will query the API data during a db refresh, restarting will fix this error."
                 Start-Sleep 10
                 # Write to the log.
