@@ -493,6 +493,8 @@ else {
             Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
             }
         }
+        # Clear all variables
+        Remove-Variable * -ErrorAction SilentlyContinue
         ./profit_manager.ps1
     }
 }
@@ -578,6 +580,8 @@ else {
     Write-Host "$TimeNow : When you are done, hit enter." -ForegroundColor Cyan
     Write-Host "  "
     pause
+    # Clear all variables
+    Remove-Variable * -ErrorAction SilentlyContinue
     #The miner will reload the Powershell file. You can make changes while it's running, and they will be applied on reload.
     .\profit_manager.ps1
 }
@@ -966,6 +970,8 @@ Do {
             }
         }
         Start-Sleep 5
+        # Clear all variables
+        Remove-Variable * -ErrorAction SilentlyContinue
         ./profit_manager.ps1
     } 
 
@@ -1014,6 +1020,8 @@ Do {
             }
         }
         Start-Sleep 5
+        # Clear all variables
+        Remove-Variable * -ErrorAction SilentlyContinue
         ./profit_manager.ps1
     }
     # Calculate the worker hashrate and accepted shares.
@@ -1049,10 +1057,30 @@ Do {
             Write-Host "$Timenow : Cannot log thread data yet, worker is still warming up."
             $thread_error_count = $thread_error_count + 1
             if($thread_error_count -eq 5){
+                # Kill worker if already running.
+                $worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
+                if ($worker_running) {
+                    # Write to the log.
+                    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                        Write-Output "$TimeNow : $miner_type is running, stopping process." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    }
+                    Write-Host "$TimeNow : Worker is running, stopping process." -ForegroundColor Red
+                    # try gracefully first
+                    $worker_running.CloseMainWindow() | out-null
+                    # kill after five seconds
+                    Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+                    Start-Sleep $stop_worker_delay
+                    if (!$worker_running.HasExited) {
+                        $worker_running | Stop-Process -Force | out-null
+                    }
+                }
+                Remove-Variable worker_running
                 Write-Host "$Timenow : Thread data has not been available for 5 cycles, restarting worker."
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                     Write-Output "$TimeNow : Thread data not available for 5 cycles, restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
+                # Clear all variables
+                Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
             }
         }
@@ -1083,6 +1111,8 @@ Do {
                     Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                     Write-Output "$TimeNow : Extra Error info: $worker_hashrate $difficulty $last_reward $coin_units ." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
+                # Clear all variables
+                Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
             }           
             # Caclulate daily profit in USD if not null
@@ -1100,6 +1130,8 @@ Do {
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                     Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
+                # Clear all variables
+                Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
             }
             Write-Host "$TimeNow : API data last refreshed: $last_updated (UTC)." -ForegroundColor White
