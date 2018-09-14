@@ -338,6 +338,7 @@ $config = "config.txt"
 $mine_cpu = $get_settings.mine_cpu
 $mine_amd = $get_settings.mine_amd
 $mine_nvidia = $get_settings.mine_nvidia
+$thread_error_count = 0
 
 # Check if params exists
 if ($get_settings.stop_worker_delay -ne $null) {
@@ -1040,12 +1041,20 @@ Do {
                     $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
                     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                         Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                        }
+                    }
                 }
             }
         }
         catch {
             Write-Host "$Timenow : Cannot log thread data yet, worker is still warming up."
+            $thread_error_count = $thread_error_count + 1
+            if($thread_error_count -eq 5){
+                Write-Host "$Timenow : Thread data has not been available for 5 cycles, restarting worker."
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                    Write-Output "$TimeNow : Thread data not available for 5 cycles, restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+                ./profit_manager.ps1
+            }
         }
         # If coin value is 0.00, set to min LTC value
         if($coin_usd -eq 0){
