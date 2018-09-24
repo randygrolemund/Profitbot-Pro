@@ -627,6 +627,9 @@ if ($miner_type -eq 'xmr-stak') {
 if ($miner_type -eq 'festival-miner') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfest\festival-miner.exe"
 }
+if ($miner_type -eq 'b2n-miner') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRb2n\b2n-miner.exe"
+}
 
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
