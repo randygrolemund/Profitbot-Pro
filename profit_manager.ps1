@@ -630,6 +630,9 @@ if ($miner_type -eq 'festival-miner') {
 if ($miner_type -eq 'b2n-miner') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRb2n\b2n-miner.exe"
 }
+if ($miner_type -eq 'mox-stak') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRmox\mox-stak.exe"
+}
 
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
@@ -712,6 +715,23 @@ if($miner_type -eq 'festival-miner'){
             $worker_running | Stop-Process -Force | out-null
         }
     }
+    $worker_running = Get-Process mox-stak -ErrorAction SilentlyContinue
+    if ($worker_running) {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : mox-stak is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+        # try gracefully first
+        $worker_running.CloseMainWindow() | out-null
+        # kill after five seconds
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Start-Sleep $stop_worker_delay
+        if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+        }
+    }
+
     Remove-Variable worker_running
 }
 
@@ -739,6 +759,22 @@ if($miner_type -eq 'xmr-stak'){
         # Write to the log.
         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
             Write-Output "$TimeNow : festival-miner is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+        # try gracefully first
+        $worker_running.CloseMainWindow() | out-null
+        # kill after five seconds
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Start-Sleep $stop_worker_delay
+        if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+        }
+    }
+    $worker_running = Get-Process mox-stak -ErrorAction SilentlyContinue
+    if ($worker_running) {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : mox-stak is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         }
         Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
         # try gracefully first
@@ -787,9 +823,77 @@ if($miner_type -eq 'b2n-miner'){
             $worker_running | Stop-Process -Force | out-null
         }
     }
+    $worker_running = Get-Process mox-stak -ErrorAction SilentlyContinue
+    if ($worker_running) {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : mox-stak is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+        # try gracefully first
+        $worker_running.CloseMainWindow() | out-null
+        # kill after five seconds
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Start-Sleep $stop_worker_delay
+        if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+        }
+    }
     Remove-Variable worker_running
 }
+# Extra kill process if using mox-stak, stop festival-miner and xmr-stak if it was running previously.
+if($miner_type -eq 'mox-stak'){
 
+    $worker_running = Get-Process festival-miner -ErrorAction SilentlyContinue
+    if ($worker_running) {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : festival-miner is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+        # try gracefully first
+        $worker_running.CloseMainWindow() | out-null
+        # kill after five seconds
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Start-Sleep $stop_worker_delay
+        if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+        }
+    }
+    $worker_running = Get-Process b2n-miner -ErrorAction SilentlyContinue
+    if ($worker_running) {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : festival-miner is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+        # try gracefully first
+        $worker_running.CloseMainWindow() | out-null
+        # kill after five seconds
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Start-Sleep $stop_worker_delay
+        if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+        }
+    }
+    $worker_running = Get-Process xmr-stak -ErrorAction SilentlyContinue
+    if ($worker_running) {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : xmr-stak is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+        # try gracefully first
+        $worker_running.CloseMainWindow() | out-null
+        # kill after five seconds
+        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+        Start-Sleep $stop_worker_delay
+        if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+        }
+    }
+    Remove-Variable worker_running
+}
 
 # Set switches for mining CPU, AMD, NVIDIA
 if($mine_cpu -eq "yes"){
