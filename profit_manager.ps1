@@ -633,6 +633,9 @@ if ($miner_type -eq 'b2n-miner') {
 if ($miner_type -eq 'mox-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRmox\mox-stak.exe"
 }
+if ($miner_type -eq 'xmr-freehaven') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
+}
 
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
@@ -664,7 +667,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","festival-miner")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","festival-miner","xmr-freehaven")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
