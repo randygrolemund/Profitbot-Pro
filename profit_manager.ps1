@@ -874,42 +874,13 @@ Do {
                 }
             }
             catch {
-                Write-Host "$TimeNow : Cannot read from Profitbot Pro API, pausing 10 seconds." -ForegroundColor Red
-                Start-Sleep 10
-                $get_coin_check = Invoke-RestMethod -Uri "https://$update_url" -Method Get
-                if ($get_coin_check.top_list.symbol[0] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[0]
-                }
-                elseif ($get_coin_check.top_list.symbol[1] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[1]
-                }
-                elseif ($get_coin_check.top_list.symbol[2] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[2]
-                }
-                elseif ($get_coin_check.top_list.symbol[3] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[3]
-                }
-                elseif ($get_coin_check.top_list.symbol[4] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[4]
-                }
-                elseif ($get_coin_check.top_list.symbol[5] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[5]
-                }
-                elseif ($get_coin_check.top_list.symbol[6] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[6]
-                }
-                elseif ($get_coin_check.top_list.symbol[7] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[7]
-                }
-                elseif ($get_coin_check.top_list.symbol[8] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[8]
-                }
-                elseif ($get_coin_check.top_list.symbol[9] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[9]
-                }
-                else {
-                    $best_coin_check = $get_coin_settings.default_coin
-                }
+                Write-Host "$TimeNow : Cannot read from Profitbot Pro API, restarting." -ForegroundColor Red
+                Start-Sleep 3
+                
+                # Clear all variables
+                Remove-Variable * -ErrorAction SilentlyContinue
+                ./profit_manager.ps1
+                
             }
              
             Write-Host "$TimeNow : Checking Coin Profitability." -ForegroundColor Yellow
