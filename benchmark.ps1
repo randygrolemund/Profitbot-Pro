@@ -26,6 +26,9 @@ $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Jso
 $get_coin_settings = Get-Content -Path "coin_settings.conf" | Out-String | ConvertFrom-Json
 $version = $get_settings.version
 $Host.UI.RawUI.WindowTitle = "Profitbot Pro Benchmark Tool created by Bearlyhealz v$version"
+$mine_cpu = $get_settings.mine_cpu
+$mine_amd = $get_settings.mine_amd
+$mine_nvidia = $get_settings.mine_nvidia
 
 $benchmark_minute = $get_settings.benchmark_time
 Write-Host "$TimeNow Setting benchmark to $benchmark_minute minutes."
@@ -43,7 +46,7 @@ $pause_before_mining = 10
 $path = $get_settings.path
 $update_url = $get_settings.update_url
 
-Write-Host "$TimeNow : Benchmarking each coin for 3 mins. Resume mining afterwards." -ForegroundColor Magenta
+Write-Host "$TimeNow : Benchmarking each coin for $benchmark_minute mins. Resume mining afterwards." -ForegroundColor Magenta
 
 #Check folder structure, create missing folders.
 if (Test-Path $path\$pc -PathType Container) {
@@ -106,7 +109,7 @@ $Array = $get_coin_settings.my_coins
 foreach ($element in $array) {
         
     # Set variables for mining software
-    $symbol = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty software
+    $symbol = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty symbol
     $miner_type = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty software
     $diff_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty static_param
     $algo = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty algo
@@ -129,14 +132,33 @@ foreach ($element in $array) {
     }
 
     Write-Host "$TimeNow : Setting Mining Application to $miner_type"
-
     write-host "
     
     "
-    Write-Host "$TimeNow : Preparing to benchmark $element.... please wait $benchmark_minute minute." -ForegroundColor Yellow
+    Write-Host "$TimeNow : Preparing to benchmark $symbol, please wait $benchmark_minute minute." -ForegroundColor Yellow
+
+    ## Set switches for mining CPU, AMD, NVIDIA
+    if($mine_cpu -eq "yes"){
+        $cpu_param = "--cpu $path\$pc\cpu.txt"
+    }
+    else {
+        $cpu_param = "--noCPU"
+    }
+    if($mine_amd -eq "yes"){
+        $amd_param = "--amd $path\$pc\$amd_config_file"
+    }
+    else {
+        $amd_param = "--noAMD"
+    }
+    if($mine_nvidia -eq "yes"){
+        $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
+    }
+    else {
+        $nvidia_param = "--noNVIDIA"
+    }
 
     # Configure the attributes for the mining software.
-    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc --cpu $path\$pc\cpu.txt --amd $path\$pc\$amd_config_file --nvidia $path\$pc\nvidia.txt"
+    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
 
     # Check for CPU.txt file, delete if exists, will create a new one once mining app launches.
     if (Test-Path $path\$pc\cpu.txt) {
@@ -175,7 +197,7 @@ foreach ($element in $array) {
     else { 
         Write-Host "$TimeNow : Diff config file for $element is not present, no need for cleanup." -ForegroundColor red
     }
-    Write-Host "$TimeNow : Starting XMR-Stak in another window."
+    Write-Host "$TimeNow : Starting $miner_type in another window."
     # Start the mining software, wait for the process to begin.
     start-process -FilePath $miner_app -args $worker_settings -WindowStyle Minimized
     Start-Sleep -Seconds 60
