@@ -266,12 +266,6 @@ if ($get_settings.update_check -eq 'yes') {
             else {
                 $original_settings | add-member -Name "enable_coin_data" -value "yes" -MemberType NoteProperty
             }
-            if ($original_settings.coin_data_age -ne $null) {
-                $original_settings.coin_data_age = $original_settings.coin_data_age
-            }
-            else {
-                $original_settings | add-member -Name "coin_data_age" -value "24hr" -MemberType NoteProperty
-            }
             if ($original_settings.mine_cpu -ne $null) {
                 $original_settings.mine_cpu = $original_settings.mine_cpu
             }
