@@ -353,7 +353,7 @@ else {
     #list all the coins you plan to mine.
     $Array = $get_coin_settings.my_coins
     # Pick the most profitable coin to mine from the top 10 list.
-    Write-Host "$TimeNow : Connecting to https://$update_url." -ForegroundColor Magenta
+    Write-Host "$TimeNow : Connecting to Profitbot Pro API." -ForegroundColor Magenta
     Write-Host "$TimeNow : Retreiving list of coins." -ForegroundColor Magenta
     $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
     
@@ -577,7 +577,9 @@ if ($miner_type -eq 'mox-stak') {
 if ($miner_type -eq 'xmr-freehaven') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
 }
-
+if ($miner_type -eq 'cryonote-stak') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRcryonote\cryonote-stak.exe"
+}
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
 # This section establishes a fixed diff for each worker. The format depends on which pool you connect to.
@@ -608,7 +610,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","festival-miner","xmr-freehaven")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven","cryonote-stak")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
