@@ -353,7 +353,7 @@ else {
     #list all the coins you plan to mine.
     $Array = $get_coin_settings.my_coins
     # Pick the most profitable coin to mine from the top 10 list.
-    Write-Host "$TimeNow : Connecting to https://$update_url." -ForegroundColor Magenta
+    Write-Host "$TimeNow : Connecting to Profitbot Pro API." -ForegroundColor Magenta
     Write-Host "$TimeNow : Retreiving list of coins." -ForegroundColor Magenta
     $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
     
