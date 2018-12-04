@@ -65,6 +65,42 @@ if (Test-Path $path\$pc\system_benchmark.success) {
 # Get the time and date.
 $TimeNow = Get-Date
 
+# Check if param exists
+if ($get_settings.stop_worker_delay -ne $null) {
+    $stop_worker_delay = $get_settings.stop_worker_delay
+}
+else {
+    $stop_worker_delay = 5
+}
+
+    # If previous worker is running, kill the process.
+
+    # List of mining software processes
+    $worker_array = @("xmr-stak","mox-stak","b2n-miner","festival-miner","xmr-freehaven")
+
+    # Loop through each miner process, and kill the one that's running
+    foreach ($element in $worker_array) {
+
+        $worker_running = Get-Process $element -ErrorAction SilentlyContinue
+        if ($worker_running) {
+        # Write to the log.
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : $element is already running, attempting to stop." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+            Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
+            # try gracefully first
+            $worker_running.CloseMainWindow() | out-null
+            # kill after five seconds
+            Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
+            Start-Sleep $stop_worker_delay
+            if (!$worker_running.HasExited) {
+            $worker_running | Stop-Process -Force | out-null
+            }
+        }
+
+        Remove-Variable worker_running
+    }
+
 # Loop through each coin for 5 minutes, then write to file
 $Array = $get_coin_settings.my_coins
 foreach ($element in $array) {
@@ -78,33 +114,22 @@ foreach ($element in $array) {
     $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty wallet
     $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty amd_config_file
     $config = "config.txt"
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
-
-    # Check if param exists
-    if ($get_settings.stop_worker_delay -ne $null) {
-        $stop_worker_delay = $get_settings.stop_worker_delay
-    }
-    else {
-        $stop_worker_delay = 5
-    }
-
-    # Kill worker if already running.
+    # These are the default apps used for mining. Updated software can be found at http://github.com/fireice-uk/xmr-stak/releases.
     if ($miner_type -eq 'xmr-stak') {
-        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
     }
-    $worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
-    if ($worker_running) {
-        Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Red
-        # try gracefully first
-        $worker_running.CloseMainWindow() | out-null
-        # kill after five seconds
-        Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
-        Start-Sleep $stop_worker_delay
-        if (!$worker_running.HasExited) {
-            $worker_running | Stop-Process -Force | out-null
-        }
+    if ($miner_type -eq 'b2n-miner') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRb2n\b2n-miner.exe"
     }
-    Remove-Variable worker_running
+    if ($miner_type -eq 'mox-stak') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRmox\mox-stak.exe"
+    }
+    if ($miner_type -eq 'xmr-freehaven') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
+    }
+
+    Write-Host "$TimeNow : Setting Mining Application to $miner_type"
+
     write-host "
     
     "

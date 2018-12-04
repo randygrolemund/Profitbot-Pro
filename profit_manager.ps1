@@ -567,9 +567,6 @@ else {
 if ($miner_type -eq 'xmr-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
 }
-if ($miner_type -eq 'festival-miner') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfest\festival-miner.exe"
-}
 if ($miner_type -eq 'b2n-miner') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRb2n\b2n-miner.exe"
 }
