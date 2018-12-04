@@ -347,57 +347,6 @@ if ($get_settings.stop_worker_delay -ne $null) {
 else {
     $stop_worker_delay = 5
 }
-if ($get_settings.coin_data_age -ne $null) {
-    $coin_data_age = $get_settings.coin_data_age
-}
-else {
-    $coin_data_age = "1hr"
-}
-
-# Pull correct data average type
-if($coin_data_age -eq "current"){
-    $live_update_url = $update_url
-    $update_url = ($update_url + "/current_release.json")
-}
-elseif ($coin_data_age -eq "1hr") {
-    $live_update_url = $update_url
-    $update_url = ($update_url + "/1hr_average.json")
-}
-elseif ($coin_data_age -eq "24hr") {
-    $live_update_url = $update_url
-    $update_url = ($update_url + "/24hr_average.json")
-}
-elseif($coin_data_age -eq "1wk"){
-    $live_update_url = $update_url
-    $update_url = ($update_url + "/1wk_average.json")
-}
-elseif($coin_data_age -eq "1mo"){
-    $live_update_url = $update_url
-    $update_url = ($update_url + "/1mo_average.json")
-}
-elseif ($coin_data_age -eq "current_unlisted") {
-    $live_update_url = ($update_url + "/current_unlisted.json")
-    $update_url = ($update_url + "/current_unlisted.json")
-}
-elseif ($coin_data_age -eq "1hr_unlisted") {
-    $live_update_url = ($update_url + "/current_unlisted.json")
-    $update_url = ($update_url + "/1hr_unlisted_average.json")
-}
-elseif ($coin_data_age -eq "24hr_unlisted") {
-    $live_update_url = ($update_url + "/current_unlisted.json")
-    $update_url = ($update_url + "/24hr_unlisted_average.json")
-}
-elseif($coin_data_age -eq "1wk_unlisted"){
-    $live_update_url = ($update_url + "/current_unlisted.json")
-    $update_url = ($update_url + "/1wk_unlisted_average.json")
-}
-elseif($coin_data_age -eq "1mo_unlisted"){
-    $live_update_url = ($update_url + "/current_unlisted.json")
-    $update_url = ($update_url + "/1mo_unlisted_average.json")
-}
-
-
-
 #Pull in the computer name from Windows.
 $pc = $env:ComputerName
 
@@ -415,64 +364,64 @@ else {
     
     # Cycle through the API's top list of coins, report error & restart if null.
     Try {
-        if ($get_coin.top_list.symbol[0] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[0]
+        if ($get_coin.symbol[0] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[0]
             $top_list_position = 1
         }
-        elseif ($get_coin.top_list.symbol[1] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[1]
+        elseif ($get_coin.symbol[1] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[1]
             $top_list_position = 2
         }
-        elseif ($get_coin.top_list.symbol[2] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[2]
+        elseif ($get_coin.symbol[2] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[2]
             $top_list_position = 3
         }
-        elseif ($get_coin.top_list.symbol[3] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[3]
+        elseif ($get_coin.symbol[3] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[3]
             $top_list_position = 4
         }
-        elseif ($get_coin.top_list.symbol[4] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[4]
+        elseif ($get_coin.symbol[4] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[4]
             $top_list_position = 5
         }
-        elseif ($get_coin.top_list.symbol[5] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[5]
+        elseif ($get_coin.symbol[5] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[5]
             $top_list_position = 6
         }
-        elseif ($get_coin.top_list.symbol[6] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[6]
+        elseif ($get_coin.symbol[6] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[6]
             $top_list_position = 7
         }
-        elseif ($get_coin.top_list.symbol[7] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[7]
+        elseif ($get_coin.symbol[7] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[7]
             $top_list_position = 8
         }
-        elseif ($get_coin.top_list.symbol[8] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[8]
+        elseif ($get_coin.symbol[8] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[8]
             $top_list_position = 9
         }
-        elseif ($get_coin.top_list.symbol[9] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[9]
+        elseif ($get_coin.symbol[9] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[9]
             $top_list_position = 10
         }
-        elseif ($get_coin.top_list.symbol[10] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[10]
+        elseif ($get_coin.symbol[10] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[10]
             $top_list_position = 11
         }
-        elseif ($get_coin.top_list.symbol[11] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[11]
+        elseif ($get_coin.symbol[11] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[11]
             $top_list_position = 12
         }
-        elseif ($get_coin.top_list.symbol[12] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[12]
+        elseif ($get_coin.symbol[12] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[12]
             $top_list_position = 13
         }
-        elseif ($get_coin.top_list.symbol[13] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[13]
+        elseif ($get_coin.symbol[13] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[13]
             $top_list_position = 14
         }
-        elseif ($get_coin.top_list.symbol[14] -in $Array.ToUpper()) {
-            $best_coin = $get_coin.top_list.symbol[14]
+        elseif ($get_coin.symbol[14] -in $Array.ToUpper()) {
+            $best_coin = $get_coin.symbol[14]
             $top_list_position = 15
         }
         else {
@@ -724,50 +673,50 @@ if ($static_mode -eq 'yes') {
 else {
     # Check to see if this is the best coin to mine
     $get_coin_check = Invoke-RestMethod -Uri "https://$update_url" -Method Get
-    if ($get_coin_check.top_list.symbol[0] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[0]
+    if ($get_coin_check.symbol[0] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[0]
     }
-    elseif ($get_coin_check.top_list.symbol[1] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[1]
+    elseif ($get_coin_check.symbol[1] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[1]
     }
-    elseif ($get_coin_check.top_list.symbol[2] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[2]
+    elseif ($get_coin_check.symbol[2] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[2]
     }
-    elseif ($get_coin_check.top_list.symbol[3] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[3]
+    elseif ($get_coin_check.symbol[3] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[3]
     }
-    elseif ($get_coin_check.top_list.symbol[4] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[4]
+    elseif ($get_coin_check.symbol[4] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[4]
     }
-    elseif ($get_coin_check.top_list.symbol[5] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[5]
+    elseif ($get_coin_check.symbol[5] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[5]
     }
-    elseif ($get_coin_check.top_list.symbol[6] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[6]
+    elseif ($get_coin_check.symbol[6] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[6]
     }
-    elseif ($get_coin_check.top_list.symbol[7] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[7]
+    elseif ($get_coin_check.symbol[7] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[7]
     }
-    elseif ($get_coin_check.top_list.symbol[8] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[8]
+    elseif ($get_coin_check.symbol[8] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[8]
     }
-    elseif ($get_coin_check.top_list.symbol[9] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[9]
+    elseif ($get_coin_check.symbol[9] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[9]
     }
-    elseif ($get_coin_check.top_list.symbol[10] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[10]
+    elseif ($get_coin_check.symbol[10] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[10]
     }
-    elseif ($get_coin_check.top_list.symbol[11] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[11]
+    elseif ($get_coin_check.symbol[11] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[11]
     }
-    elseif ($get_coin_check.top_list.symbol[12] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[12]
+    elseif ($get_coin_check.symbol[12] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[12]
     }
-    elseif ($get_coin_check.top_list.symbol[13] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[13]
+    elseif ($get_coin_check.symbol[13] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[13]
     }
-    elseif ($get_coin_check.top_list.symbol[14] -in $Array.ToUpper()) {
-        $best_coin_check = $get_coin_check.top_list.symbol[14]
+    elseif ($get_coin_check.symbol[14] -in $Array.ToUpper()) {
+        $best_coin_check = $get_coin_check.symbol[14]
     }
     else {
         $best_coin_check = $get_coin_settings.default_coin
@@ -824,50 +773,50 @@ Do {
             # Check if worker can talk to the API, if not, wait 10 seconds.
             try {
                 $get_coin_check = Invoke-RestMethod -Uri "https://$update_url" -Method Get
-                if ($get_coin_check.top_list.symbol[0] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[0]
+                if ($get_coin_check.symbol[0] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[0]
                 }
-                elseif ($get_coin_check.top_list.symbol[1] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[1]
+                elseif ($get_coin_check.symbol[1] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[1]
                 }
-                elseif ($get_coin_check.top_list.symbol[2] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[2]
+                elseif ($get_coin_check.symbol[2] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[2]
                 }
-                elseif ($get_coin_check.top_list.symbol[3] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[3]
+                elseif ($get_coin_check.symbol[3] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[3]
                 }
-                elseif ($get_coin_check.top_list.symbol[4] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[4]
+                elseif ($get_coin_check.symbol[4] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[4]
                 }
-                elseif ($get_coin_check.top_list.symbol[5] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[5]
+                elseif ($get_coin_check.symbol[5] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[5]
                 }
-                elseif ($get_coin_check.top_list.symbol[6] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[6]
+                elseif ($get_coin_check.symbol[6] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[6]
                 }
-                elseif ($get_coin_check.top_list.symbol[7] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[7]
+                elseif ($get_coin_check.symbol[7] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[7]
                 }
-                elseif ($get_coin_check.top_list.symbol[8] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[8]
+                elseif ($get_coin_check.symbol[8] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[8]
                 }
-                elseif ($get_coin_check.top_list.symbol[9] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[9]
+                elseif ($get_coin_check.symbol[9] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[9]
                 }
-                elseif ($get_coin_check.top_list.symbol[10] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[10]
+                elseif ($get_coin_check.symbol[10] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[10]
                 }
-                elseif ($get_coin_check.top_list.symbol[11] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[11]
+                elseif ($get_coin_check.symbol[11] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[11]
                 }
-                elseif ($get_coin_check.top_list.symbol[12] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[12]
+                elseif ($get_coin_check.symbol[12] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[12]
                 }
-                elseif ($get_coin_check.top_list.symbol[13] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[13]
+                elseif ($get_coin_check.symbol[13] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[13]
                 }
-                elseif ($get_coin_check.top_list.symbol[14] -in $Array.ToUpper()) {
-                    $best_coin_check = $get_coin_check.top_list.symbol[14]
+                elseif ($get_coin_check.symbol[14] -in $Array.ToUpper()) {
+                    $best_coin_check = $get_coin_check.symbol[14]
                 }
                 else {
                     $best_coin_check = $get_coin_settings.default_coin
@@ -921,21 +870,21 @@ Do {
     } 
 
     # Refresh coin values
-    $get_coin = Invoke-RestMethod -Uri "https://$live_update_url" -Method Get 
+    $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
     # Set coin variables from API
-    $symbol = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
-    $coin_name = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_name
-    $base_coin_price = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty base_coin_price
-    $base_coin_symbol = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty base_coin_symbol
-    $coin_usd = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_usd
-    $last_reward = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_reward
-    $difficulty = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty difficulty
-    $coin_units = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_units
-    $last_updated = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_updated
-    $satoshi = $get_coin.top_list | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty satoshi
+    $symbol = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
+    $coin_name = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_name
+    $base_coin_price = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty base_coin_price
+    $base_coin_symbol = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty base_coin_symbol
+    $coin_usd = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_usd
+    $last_reward = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_reward
+    $difficulty = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty difficulty
+    $coin_units = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_units
+    $last_updated = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_updated
+    $satoshi = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty satoshi
     
     # Verify the API json is not empty  -----not currently used in code
-    $json_count = $get_coin.top_list | Measure-Object | Select-Object Count
+    $json_count = $get_coin | Measure-Object | Select-Object Count
    
     If ($HTTP_Status -eq 200) {
     }
