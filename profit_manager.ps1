@@ -48,7 +48,7 @@ $TimeNow = Get-Date
 
 # Set path parameter
 $path = $get_settings.path
-$update_url = "$get_settings.update_url"
+$update_url = $get_settings.update_url
 
 # ************************************************************************************************************************************
 
@@ -1098,4 +1098,29 @@ if ($enable_log -eq 'yes') {
 $worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
 if ($worker_running) {
     # Write to the log.
-    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-M
+    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+        Write-Output "$TimeNow : Attempting to stop $miner_type for coin-switch." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+    }
+    Write-Host "$TimeNow : Stopping Worker process." -ForegroundColor Red
+    # try gracefully first
+    $worker_running.CloseMainWindow() | Out-Null
+    # kill after five seconds
+    Write-Host "$TimeNow : Worker already running, stopping process." -ForegroundColor Yellow
+    Sleep $stop_worker_delay
+    if (!$worker_running.HasExited) {
+        Write-Host "$TimeNow : Worker process has not halted, forcing process to stop." -ForegroundColor Red
+        $worker_running | Stop-Process -Force | Out-Null
+    }
+}
+Write-Host "$TimeNow : Successfully stopped miner process, reloading." -ForegroundColor Yellow
+
+# Write to the log.
+if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+    Write-Output "$TimeNow : The worker is now restarting." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+}
+
+# Clear all variables
+Remove-Variable * -ErrorAction SilentlyContinue
+
+# Reload the worker.
+.\profit_manager.ps1
