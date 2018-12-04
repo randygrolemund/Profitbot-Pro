@@ -49,6 +49,7 @@ $TimeNow = Get-Date
 # Set path parameter
 $path = $get_settings.path
 $update_url = $get_settings.update_url
+$upgrade_url = "api.profitbotpro.com"
 
 # ************************************************************************************************************************************
 
@@ -104,7 +105,7 @@ $coin_settings_path = "$my_path\Previous_Version\coin_settings.conf"
 
 # If check for updates is enabled, pull in version information.
 if ($get_settings.update_check -eq 'yes') {
-    $check_update = Invoke-RestMethod -Uri "https://$update_url" -Method Get
+    $check_update = Invoke-RestMethod -Uri "https://$upgrade_url" -Method Get
     $web_version = $check_update.version
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
@@ -134,7 +135,7 @@ if ($get_settings.update_check -eq 'yes') {
             }
             else {
                 # Download updates from server
-                $url = "https://$update_url/releases/profit_manager.ps1"
+                $url = "https://$upgrade_url/releases/profit_manager.ps1"
                 $output = "$path\profit_manager.ps1"
                 Invoke-WebRequest -Uri $url -OutFile $output
                 Start-Sleep 1
@@ -173,47 +174,47 @@ if ($get_settings.update_check -eq 'yes') {
             Write-Host "$TimeNow : Downloading updates...." -ForegroundColor Cyan
             
             # Download Additional Updates
-            $url = "https://$update_url/releases/benchmark.ps1"
+            $url = "https://$upgrade_url/releases/benchmark.ps1"
             $output = "$path\benchmark.ps1"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/settings.conf"
+            $url = "https://$upgrade_url/releases/settings.conf"
             $output = "$path\settings.conf"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/coin_settings.conf"
+            $url = "https://$upgrade_url/releases/coin_settings.conf"
             $output = "$path\coin_settings.conf"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/config.txt"
+            $url = "https://$upgrade_url/releases/config.txt"
             $output = "$path\config.txt"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/Instructions.pdf"
+            $url = "https://$upgrade_url/releases/Instructions.pdf"
             $output = "$path\Instructions.pdf"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/profit_manager.ps1"
+            $url = "https://$upgrade_url/releases/profit_manager.ps1"
             $output = "$path\profit_manager.ps1"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/Profitbot_Pro.ico"
+            $url = "https://$upgrade_url/releases/Profitbot_Pro.ico"
             $output = "$path\Profitbot_Pro.ico"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/Profitbot_Pro.lnk"
+            $url = "https://$upgrade_url/releases/Profitbot_Pro.lnk"
             $output = "$path\Profitbot_Pro.lnk"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/Profitbot_Pro.bat"
+            $url = "https://$upgrade_url/releases/Profitbot_Pro.bat"
             $output = "$path\Profitbot_Pro.bat"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/Benchmark.bat"
+            $url = "https://$upgrade_url/releases/Benchmark.bat"
             $output = "$path\Benchmark.bat"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://$update_url/releases/LICENSE"
+            $url = "https://$upgrade_url/releases/LICENSE"
             $output = "$path\LICENSE"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
@@ -239,7 +240,7 @@ if ($get_settings.update_check -eq 'yes') {
             $original_settings.static_mode = $original_settings.static_mode
             $original_settings.update_check = $original_settings.update_check
             $original_settings.allow_automatic_updates = $original_settings.allow_automatic_updates
-            $original_settings.update_url = "api.profitbotpro.com"
+            $original_settings.update_url = $original_settings.update_url
             $original_settings.enable_logging = $original_settings.enable_logging
             $original_settings.log_age = $original_settings.log_age
             $original_settings.delete_cpu_txt = $original_settings.delete_cpu_txt
