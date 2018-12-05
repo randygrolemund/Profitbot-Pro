@@ -161,7 +161,7 @@ if ($get_settings.update_check -eq 'yes') {
                 else {
                     Write-Host "$TimeNow : Adding previously backed up files to archive. (OK!)" -ForegroundColor Green
                     $source = "$path\Previous_Version"
-                    $destination = "$path\Backups\backup_$(get-date -f 'yyyy-MM-dd_hh_mm_ss').zip"
+                    $destination = "$path\Backups\backup_$(get-date -f 'yyyy-MM-dd_HH-mm_mm_ss').zip"
                     Add-Type -assembly "system.io.compression.filesystem"
                     [io.compression.zipfile]::CreateFromDirectory($Source, $destination) 
                 }
@@ -505,7 +505,7 @@ $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_
 $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty wallet
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
 $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
-
+$srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
 # Check if wallet param exists, if not then display error
 if ($symbol -ne $null) {
 }
@@ -580,6 +580,9 @@ if ($miner_type -eq 'xmr-freehaven') {
 if ($miner_type -eq 'cryonote-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRcryonote\cryonote-stak.exe"
 }
+if ($miner_type -eq 'SRBMiner-CN') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"
+}
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
 # This section establishes a fixed diff for each worker. The format depends on which pool you connect to.
@@ -610,7 +613,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven","cryonote-stak")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven","cryonote-stak", "SRBMiner-CN")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -626,7 +629,9 @@ foreach ($element in $worker_array) {
         $worker_running.CloseMainWindow() | out-null
         # kill after five seconds
         Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
-        Start-Sleep $stop_worker_delay
+        
+            Start-Sleep $stop_worker_delay
+
         if (!$worker_running.HasExited) {
             $worker_running | Stop-Process -Force | out-null
         }
@@ -635,28 +640,34 @@ foreach ($element in $worker_array) {
     Remove-Variable worker_running
 }
 
-# Set switches for mining CPU, AMD, NVIDIA
-if($mine_cpu -eq "yes"){
-    $cpu_param = "--cpu $path\$pc\cpu.txt"
+if ($miner_type -eq 'SRBMiner-CN') {
+    $logfile = "$(get-date -f yyyy-MM-dd).log"
+    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $pc --cworker $pc --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$pc"
 }
 else {
-    $cpu_param = "--noCPU"
-}
-if($mine_amd -eq "yes"){
-    $amd_param = "--amd $path\$pc\$amd_config_file"
-}
-else {
-    $amd_param = "--noAMD"
-}
-if($mine_nvidia -eq "yes"){
-    $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
-}
-else {
-    $nvidia_param = "--noNVIDIA"
+    # Set switches for mining CPU, AMD, NVIDIA
+    if($mine_cpu -eq "yes"){
+        $cpu_param = "--cpu $path\$pc\cpu.txt"
+    }
+    else {
+        $cpu_param = "--noCPU"
+    }
+    if($mine_amd -eq "yes"){
+        $amd_param = "--amd $path\$pc\$amd_config_file"
+    }
+    else {
+        $amd_param = "--noAMD"
+    }
+    if($mine_nvidia -eq "yes"){
+        $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
+    }
+    else {
+        $nvidia_param = "--noNVIDIA"
+    }
+    # Configure the attributes for the mining software.
+    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
 }
 
-# Configure the attributes for the mining software.
-$worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
 
 Write-Host "$TimeNow : Starting $miner_type in another window."
 
@@ -840,28 +851,36 @@ Do {
     }
     # Check if worker url is working, then get the current hashrate from mining software
     $TimeNow = Get-Date
-    try {
-        $HTTP_Request = [System.Net.WebRequest]::Create('http://127.0.0.1:8080/api.json')
-        $HTTP_Response = $HTTP_Request.GetResponse()
-        $HTTP_Status = [int]$HTTP_Response.StatusCode
+    Start-Sleep -Seconds 5
+    $statusCode = wget http://127.0.0.1:8080 | % {$_.StatusCode}
+    If ($statusCode -eq 200) {
     }
-    catch {
-        $ErrorMessage = $_.Exception.Message
-        $FailedItem = $_.Exception.ItemName
-        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-        Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
-        Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
-        # Write to the log.
-        if ($enable_log -eq 'yes') {
-            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-            Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-            }
+    Else {
+        Write-Host "$TimeNow : Worker is taking a little longer than expected to start." -ForegroundColor Yellow
+        Start-Sleep -Seconds 10
+    }
+    
+        try {
+            $statusCode = wget http://127.0.0.1:8080 | % {$_.StatusCode}
         }
-        Start-Sleep 5
-        # Clear all variables
-        Remove-Variable * -ErrorAction SilentlyContinue
-        ./profit_manager.ps1
-    } 
+        catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+            # Write to the log.
+            if ($enable_log -eq 'yes') {
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+            }
+            Start-Sleep 5
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }   
+    
 
     # Refresh coin values
     $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
@@ -880,98 +899,63 @@ Do {
     # Verify the API json is not empty  -----not currently used in code
     $json_count = $get_coin | Measure-Object | Select-Object Count
    
-    If ($HTTP_Status -eq 200) {
-    }
-    Else {
-        Write-Host "$TimeNow : Worker is taking a little longer than expected to start." -ForegroundColor Yellow
-        Start-Sleep -Seconds $set_sleep
-    }
-    $HTTP_Response.Close()
-
     # Get the current date and time.
     $TimeNow = Get-Date
 
     # Get the hashrate from XMR-Stak. If error state occurs, restart the worker.
-    Try {
-        $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
-    }
-    Catch {
-        $ErrorMessage = $_.Exception.Message
-        $FailedItem = $_.Exception.ItemName
-        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-        Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
-        Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
-        # Write to the log.
-        if ($enable_log -eq 'yes') {
-            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-            Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-            }
+    if ($miner_type -eq 'SRBMiner-CN') {
+        Try {
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate_total_now
+            $my_results = $get_hashrate.shares.accepted
         }
-        Start-Sleep 5
-        # Clear all variables
-        Remove-Variable * -ErrorAction SilentlyContinue
-        ./profit_manager.ps1
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If SRB-Miner does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+            # Write to the log.
+            if ($enable_log -eq 'yes') {
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+            }
+            Start-Sleep 5
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }
+    }
+    else {
+        Try {
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_results = $get_hashrate.results.shares_good
+        }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+            # Write to the log.
+            if ($enable_log -eq 'yes') {
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+            }
+            Start-Sleep 5
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }
     }
     # Calculate the worker hashrate and accepted shares.
-    $worker_hashrate = $get_hashrate.hashrate.total[0]
-    $my_results = $get_hashrate.results.shares_good
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]") {
 
-        try {
-            # Get the hashrate for each thread and write to the log.
-            $count = $get_hashrate.hashrate.threads.count
-            $start_thread = 1
-            $thread_count = $count -1
-            if($get_hashrate.hashrate.threads[0][0] -ne $null){
-                $thread_hashrate = $get_hashrate.hashrate.threads[0][0]
-            }
-            
-            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                Write-Output "$TimeNow : Thread 0 - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-            }
-            if($start_thread -ne $null -and $thread_count -ne $null){
-                foreach ($_ in $start_thread..$thread_count){
-                    $i++
-                    $a = "Thread "
-                    $thread_hashrate = $get_hashrate.hashrate.threads[$i][0]
-                    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                        Write-Output "$TimeNow : $a$i - $thread_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                    }
-                }
-            }
-        }
-        catch {
-            Write-Host "$Timenow : Cannot log thread data yet, worker is still warming up."
-            $thread_error_count = $thread_error_count + 1
-            if($thread_error_count -eq 5){
-                # Kill worker if already running.
-                $worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
-                if ($worker_running) {
-                    # Write to the log.
-                    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                        Write-Output "$TimeNow : $miner_type is running, stopping process." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                    }
-                    Write-Host "$TimeNow : Worker is running, stopping process." -ForegroundColor Red
-                    # try gracefully first
-                    $worker_running.CloseMainWindow() | out-null
-                    # kill after five seconds
-                    Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
-                    Start-Sleep $stop_worker_delay
-                    if (!$worker_running.HasExited) {
-                        $worker_running | Stop-Process -Force | out-null
-                    }
-                }
-                Remove-Variable worker_running
-                Write-Host "$Timenow : Thread data has not been available for 5 cycles, restarting worker."
-                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                    Write-Output "$TimeNow : Thread data not available for 5 cycles, restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                }
-                # Clear all variables
-                Remove-Variable * -ErrorAction SilentlyContinue
-                ./profit_manager.ps1
-            }
-        }
+        
         # If coin value is 0.00, set to min LTC value
         if($coin_usd -eq 0){
             $coin_usd = 0.00000054
