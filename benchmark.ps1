@@ -79,7 +79,7 @@ else {
     # If previous worker is running, kill the process.
 
     # List of mining software processes
-    $worker_array = @("xmr-stak","mox-stak","b2n-miner","festival-miner","xmr-freehaven")
+    $worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven","cryonote-stak", "SRBMiner-CN")
 
     # Loop through each miner process, and kill the one that's running
     foreach ($element in $worker_array) {
@@ -119,16 +119,22 @@ foreach ($element in $array) {
     $config = "config.txt"
     # These are the default apps used for mining. Updated software can be found at http://github.com/fireice-uk/xmr-stak/releases.
     if ($miner_type -eq 'xmr-stak') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
+        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
     }
     if ($miner_type -eq 'b2n-miner') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRb2n\b2n-miner.exe"
+        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRb2n\b2n-miner.exe"
     }
     if ($miner_type -eq 'mox-stak') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRmox\mox-stak.exe"
+        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRmox\mox-stak.exe"
     }
     if ($miner_type -eq 'xmr-freehaven') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
+        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
+    }
+    if ($miner_type -eq 'cryonote-stak') {
+        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRcryonote\cryonote-stak.exe"
+    }
+    if ($miner_type -eq 'SRBMiner-CN') {
+        Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"
     }
 
     Write-Host "$TimeNow : Setting Mining Application to $miner_type"
@@ -137,28 +143,33 @@ foreach ($element in $array) {
     "
     Write-Host "$TimeNow : Preparing to benchmark $symbol, please wait $benchmark_minute minute." -ForegroundColor Yellow
 
-    ## Set switches for mining CPU, AMD, NVIDIA
-    if($mine_cpu -eq "yes"){
-        $cpu_param = "--cpu $path\$pc\cpu.txt"
+    if ($miner_type -eq 'SRBMiner-CN') {
+        $logfile = "$(get-date -f yyyy-MM-dd).log"
+        $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $pc --cworker $pc --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$pc"
     }
     else {
-        $cpu_param = "--noCPU"
+        # Set switches for mining CPU, AMD, NVIDIA
+        if($mine_cpu -eq "yes"){
+            $cpu_param = "--cpu $path\$pc\cpu.txt"
+        }
+        else {
+            $cpu_param = "--noCPU"
+        }
+        if($mine_amd -eq "yes"){
+            $amd_param = "--amd $path\$pc\$amd_config_file"
+        }
+        else {
+            $amd_param = "--noAMD"
+        }
+        if($mine_nvidia -eq "yes"){
+            $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
+        }
+        else {
+            $nvidia_param = "--noNVIDIA"
+        }
+        # Configure the attributes for the mining software.
+        $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
     }
-    if($mine_amd -eq "yes"){
-        $amd_param = "--amd $path\$pc\$amd_config_file"
-    }
-    else {
-        $amd_param = "--noAMD"
-    }
-    if($mine_nvidia -eq "yes"){
-        $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
-    }
-    else {
-        $nvidia_param = "--noNVIDIA"
-    }
-
-    # Configure the attributes for the mining software.
-    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
 
     # Check for CPU.txt file, delete if exists, will create a new one once mining app launches.
     if (Test-Path $path\$pc\cpu.txt) {
@@ -205,10 +216,20 @@ foreach ($element in $array) {
     # Get the time and date.
     $TimeNow = Get-Date
 
-    # Pull hashrate from worker api.
-    $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get 
-    $worker_hashrate = $get_hashrate.hashrate.total[0]
-    $my_results = $get_hashrate.results.shares_good
+    if ($miner_type -eq 'SRBMiner-CN') {
+
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate_total_now
+            $my_results = $get_hashrate.shares.accepted
+        
+    }
+    else {
+    
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_results = $get_hashrate.results.shares_good
+        
+    }
 
     #If worker is displaying hashrate, calculate fixed diff.
     if ($worker_hashrate -match "[0-9]") {
@@ -218,10 +239,21 @@ foreach ($element in $array) {
         # Get the time and date.
         $TimeNow = Get-Date
 
-        # Pull hashrate from worker api.
-        $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get 
-        $worker_hashrate = $get_hashrate.hashrate.total[0]
-        $my_results = $get_hashrate.results.shares_good
+        if ($miner_type -eq 'SRBMiner-CN') {
+
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate_total_now
+            $my_results = $get_hashrate.shares.accepted
+        
+        }
+        else {
+    
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_results = $get_hashrate.results.shares_good
+        
+        }
+        
         $suggested_diff = [math]::Round($worker_hashrate * 30)
         Write-Host "$TimeNow : Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
         Write-Host "$TimeNow : Creating difficulty config file for $element on this worker." -ForegroundColor yellow
