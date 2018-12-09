@@ -852,7 +852,7 @@ Do {
     # Check if worker url is working, then get the current hashrate from mining software
     $TimeNow = Get-Date
     Start-Sleep -Seconds 5
-    $statusCode = wget http://127.0.0.1:8080 | % {$_.StatusCode}
+    $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
     If ($statusCode -eq 200) {
     }
     Else {
@@ -861,7 +861,7 @@ Do {
     }
     
         try {
-            $statusCode = wget http://127.0.0.1:8080 | % {$_.StatusCode}
+            $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
         }
         catch {
             $ErrorMessage = $_.Exception.Message
