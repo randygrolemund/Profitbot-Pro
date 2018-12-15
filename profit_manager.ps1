@@ -37,6 +37,8 @@ $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Jso
 $get_coin_settings = Get-Content -Path "coin_settings.conf" | Out-String | ConvertFrom-Json
 $version = $get_settings.version
 $Host.UI.RawUI.WindowTitle = "Profitbot Pro created by Bearlyhealz v$version"
+
+#Pull in the computer name from Windows.
 $pc = $env:ComputerName
 
 # Set Log variables
@@ -323,7 +325,8 @@ else {
 
 # Set a default coin in the event the application wants to mine a coin that you do not have a wallet for.
 $default_coin = $get_coin_settings.default_coin
-# How many minutes do you want the miner to run before checking for a new coin?
+
+# Mining paramaters
 $mine_minutes = $get_settings.mining_timer
 $mine_seconds = $mine_seconds = [int]$get_settings.mining_timer * [int]60
 $set_sleep = $get_settings.sleep_seconds
@@ -335,6 +338,14 @@ $mine_amd = $get_settings.mine_amd
 $mine_nvidia = $get_settings.mine_nvidia
 $thread_error_count = 0
 
+$rigname = $get_settings.rig_name
+if (!$rigname) {
+    $rigname = $pc
+}
+else {
+    $rigname = $get_settings.rig_name
+}
+
 # Check if params exists
 if ($get_settings.stop_worker_delay -ne $null) {
     $stop_worker_delay = $get_settings.stop_worker_delay
@@ -342,8 +353,7 @@ if ($get_settings.stop_worker_delay -ne $null) {
 else {
     $stop_worker_delay = 5
 }
-#Pull in the computer name from Windows.
-$pc = $env:ComputerName
+
 
 # Set mode variables for best coin
 if ($static_mode -eq "yes") {
@@ -487,7 +497,7 @@ else {
     }
 }
 
-Write-Host "$TimeNow : Activating Worker on [$pc]"
+Write-Host "$TimeNow : Activating Worker on [$rigname]"
 
 # Get information about the GPU, print to screen
 Write-Host "$TimeNow : This system has the following GPU's:" -ForegroundColor Yellow
@@ -642,7 +652,7 @@ foreach ($element in $worker_array) {
 
 if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
-    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $pc --cworker $pc --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$pc"
+    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$rigname"
 }
 else {
     # Set switches for mining CPU, AMD, NVIDIA
@@ -665,7 +675,7 @@ else {
         $nvidia_param = "--noNVIDIA"
     }
     # Configure the attributes for the mining software.
-    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
+    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass w=$rigname $cpu_param $amd_param $nvidia_param"
 }
 
 
