@@ -260,7 +260,7 @@ if ($get_settings.update_check -eq 'yes') {
                 $original_settings.stop_worker_delay = $original_settings.stop_worker_delay
             }
             else {
-                $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
+                $original_settings | add-member -Name "stop_worker_delay" -value "5" -MemberType NoteProperty
             }
             if ($original_settings.benchmark_time -ne $null) {
                 $original_settings.benchmark_time = $original_settings.benchmark_time
