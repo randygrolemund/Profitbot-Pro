@@ -520,7 +520,12 @@ $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_
 $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty wallet
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
 $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
+
+# If configured for SRBm otherwise ignore
+if ($miner_type -eq 'SRBMiner-CN') {
 $srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
+}
+
 # Check if wallet param exists, if not then display error
 if ($symbol -ne $null) {
 }
