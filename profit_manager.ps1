@@ -239,6 +239,12 @@ if ($get_settings.update_check -eq 'yes') {
             Write-Host "$TimeNow : Importing settings from settings.conf." -ForegroundColor Yellow
             $original_settings = Get-Content $settings_path -raw | ConvertFrom-Json
             $original_settings.path = $original_settings.path
+            if ($original_settings.rig_name -ne $null) {
+                $original_settings.rig_name = $original_settings.rig_name
+            }
+            else {
+                $original_settings | add-member -Name "rig_name" -value "" -MemberType NoteProperty
+            }
             $original_settings.static_mode = $original_settings.static_mode
             $original_settings.update_check = $original_settings.update_check
             $original_settings.allow_automatic_updates = $original_settings.allow_automatic_updates
@@ -247,8 +253,7 @@ if ($get_settings.update_check -eq 'yes') {
             $original_settings.log_age = $original_settings.log_age
             $original_settings.delete_cpu_txt = $original_settings.delete_cpu_txt
             $original_settings.mining_timer = $original_settings.mining_timer
-            $original_settings.sleep_seconds = $original_settings.sleep_seconds
-                
+            $original_settings.sleep_seconds = $original_settings.sleep_seconds   
             $original_settings.voice = $original_settings.voice
             $original_settings.version = $web_version
             if ($original_settings.stop_worker_delay -ne $null) {
