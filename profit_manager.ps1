@@ -973,7 +973,7 @@ Do {
     }
     # Calculate the worker hashrate and accepted shares.
     $suggested_diff = [math]::Round($worker_hashrate * 30)
-    if ($worker_hashrate -match "[0-9]") {
+    if ($worker_hashrate -match "[0-9]" -and $worker_hashrate -ne "0" -and $null -ne $worker_hashrate) {
 
         
         # If coin value is 0.00, set to min LTC value
