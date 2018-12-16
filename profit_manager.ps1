@@ -239,12 +239,6 @@ if ($get_settings.update_check -eq 'yes') {
             Write-Host "$TimeNow : Importing settings from settings.conf." -ForegroundColor Yellow
             $original_settings = Get-Content $settings_path -raw | ConvertFrom-Json
             $original_settings.path = $original_settings.path
-            if ($original_settings.rig_name -ne $null) {
-                $original_settings.rig_name = $original_settings.rig_name
-            }
-            else {
-                $original_settings | add-member -Name "rig_name" -value "" -MemberType NoteProperty
-            }
             $original_settings.static_mode = $original_settings.static_mode
             $original_settings.update_check = $original_settings.update_check
             $original_settings.allow_automatic_updates = $original_settings.allow_automatic_updates
@@ -291,6 +285,18 @@ if ($get_settings.update_check -eq 'yes') {
             }
             else {
                 $original_settings | add-member -Name "mine_nvidia" -value "yes" -MemberType NoteProperty
+            }
+            if ($original_settings.rig_name -ne $null) {
+                $original_settings.rig_name = $original_settings.rig_name
+            }
+            else {
+                $original_settings | add-member -Name "rig_name" -value "" -MemberType NoteProperty
+            }
+            if ($original_settings.api_key -ne $null) {
+                $original_settings.api_key = $original_settings.api_key
+            }
+            else {
+                $original_settings | add-member -Name "api_key" -value "" -MemberType NoteProperty
             }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
