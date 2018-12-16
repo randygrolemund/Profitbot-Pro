@@ -356,6 +356,12 @@ if (!$rigname) {
 else {
     $rigname = $get_settings.rig_name
 }
+$apikey = $get_settings.api_key
+if (!$apikey) {
+}
+else {
+    $apikey = $get_settings.api_key
+}
 
 # Check if params exists
 if ($get_settings.stop_worker_delay -ne $null) {
@@ -933,7 +939,8 @@ Do {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
             $worker_hashrate = $get_hashrate.hashrate_total_now
-            $my_results = $get_hashrate.shares.accepted
+            $my_accepted_shares = $get_hashrate.shares.accepted
+            $my_rejected_shares = $get_hashrate.shares.rejected
         }
         Catch {
             $ErrorMessage = $_.Exception.Message
@@ -957,7 +964,9 @@ Do {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
-            $my_results = $get_hashrate.results.shares_good
+            $my_accepted_shares = $get_hashrate.results.shares_good
+            $total_shares = $get_hashrate.results.shares_total
+            $my_rejected_shares = ($total_shares - $my_accepted_shares)
         }
         Catch {
             $ErrorMessage = $_.Exception.Message
@@ -988,7 +997,7 @@ Do {
         }
 
         # Print the worker hashrate and accepted share to screen.
-        Write-Host "$TimeNow : Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Cyan
+        Write-Host "$TimeNow : Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_accepted_shares" -ForegroundColor Cyan
         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
             Write-Output "$TimeNow : Total Worker Hashrate - $worker_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         }
@@ -1048,6 +1057,24 @@ Do {
     else {
         Write-Host "$TimeNow : Waiting on worker to display hashrate." -ForegroundColor Yellow
     }
+
+    # Variables to send to Miner API
+    if ($static_mode -eq 'yes') {
+        $mining_mode = "Static"
+    }
+    else{
+        $mining_mode = "Profit"
+    }
+
+    # Communicate mining status with the Miner API if API_Key is not null.
+    if (!$apikey) {
+        
+    }
+    else {
+        $submit_mining_results = Invoke-RestMethod -Uri "https://www.profitbotpro.com/api/v1/miners.cfm?api_key=$apikey&rig_name=$rigname&mining_mode=$mining_mode&symbol=$symbol&hashrate=$worker_hashRate&reward_24h=$reward_24H&earned_24h=$earned_24H&accepted_shares=$my_accepted_shares&rejected_shares=$my_rejected_shares&algo=$algo&miner_type=$miner_type" -Method Post
+    }
+    
+    
     # Clear variables
     Remove-Variable count -ErrorAction SilentlyContinue
     Remove-Variable start_thread -ErrorAction SilentlyContinue
@@ -1104,7 +1131,7 @@ if ($enable_log -eq 'yes') {
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
         Write-Output "$TimeNow : Finished mining $best_coin, switching to $best_coin_check" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         Write-Output "$TimeNow : Mined $best_coin for: $mined_hours : $mined_minutes minutes" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        Write-Output "$TimeNow : $best_coin worker hashrate: $worker_hashrate H/s, Accepted Shares: $my_results"  | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        Write-Output "$TimeNow : $best_coin worker hashrate: $worker_hashrate H/s, Accepted Shares: $my_accepted_shares"  | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
 }
 # Wait for the executable to stop before continuing.
