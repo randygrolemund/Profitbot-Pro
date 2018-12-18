@@ -10,12 +10,8 @@ Write-Host "
      |                   BTC Address: 1EUFmXVcyWR85c57z9wtr5Q6KxyBbR2UUn                     |
      |                                                                                       |
      |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
-     |                                                                                       |
-     |---------------------------------------------------------------------------------------|
-     |                     Feature requests and feedback welcomed! :)                        |
-     |                        https://github.com/randygrolemund                              |
-     |                           https://www.profitbotpro.com                                |
-     |                           https://api.profitbotpro.com                                |
+     |                                                                                       |   
+     |                            https://www.profitbotpro.com                               |
      |_______________________________________________________________________________________|
 
 " -ForegroundColor Cyan

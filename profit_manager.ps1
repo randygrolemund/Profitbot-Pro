@@ -22,11 +22,7 @@ Write-Host "
      |                                                                                       |
      |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
      |                                                                                       |
-     |---------------------------------------------------------------------------------------|
-     |                     Feature requests and feedback welcomed! :)                        |
-     |                        https://github.com/randygrolemund                              |
      |                           https://www.profitbotpro.com                                |
-     |                           https://api.profitbotpro.com                                |
      |_______________________________________________________________________________________|
 " -ForegroundColor Cyan
 
@@ -111,8 +107,8 @@ if ($get_settings.update_check -eq 'yes') {
     $web_version = $check_update.version
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
-    Write-Host "$TimeNow : Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
-    Write-Host "$TimeNow :       Web version: SCPM v$web_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow : Installed version: PBP v$installed_settings_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow :       Web version: PBP v$web_version" -ForegroundColor Yellow
     # check to see if running the newest version
     if ($web_version -gt $installed_settings_version) {
         Write-Host "$TimeNow : An update is available!" -ForegroundColor Cyan
