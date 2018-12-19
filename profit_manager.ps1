@@ -22,11 +22,7 @@ Write-Host "
      |                                                                                       |
      |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
      |                                                                                       |
-     |---------------------------------------------------------------------------------------|
-     |                     Feature requests and feedback welcomed! :)                        |
-     |                        https://github.com/randygrolemund                              |
      |                           https://www.profitbotpro.com                                |
-     |                           https://api.profitbotpro.com                                |
      |_______________________________________________________________________________________|
 " -ForegroundColor Cyan
 
@@ -37,6 +33,8 @@ $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Jso
 $get_coin_settings = Get-Content -Path "coin_settings.conf" | Out-String | ConvertFrom-Json
 $version = $get_settings.version
 $Host.UI.RawUI.WindowTitle = "Profitbot Pro created by Bearlyhealz v$version"
+
+#Pull in the computer name from Windows.
 $pc = $env:ComputerName
 
 # Set Log variables
@@ -109,8 +107,8 @@ if ($get_settings.update_check -eq 'yes') {
     $web_version = $check_update.version
     $installed_settings_version = $get_settings.version
     $installed_coin_settings_version = $get_coin_settings.version
-    Write-Host "$TimeNow : Installed version: SCPM v$installed_settings_version" -ForegroundColor Yellow
-    Write-Host "$TimeNow :       Web version: SCPM v$web_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow : Installed version: PBP v$installed_settings_version" -ForegroundColor Yellow
+    Write-Host "$TimeNow :       Web version: PBP v$web_version" -ForegroundColor Yellow
     # check to see if running the newest version
     if ($web_version -gt $installed_settings_version) {
         Write-Host "$TimeNow : An update is available!" -ForegroundColor Cyan
@@ -245,15 +243,14 @@ if ($get_settings.update_check -eq 'yes') {
             $original_settings.log_age = $original_settings.log_age
             $original_settings.delete_cpu_txt = $original_settings.delete_cpu_txt
             $original_settings.mining_timer = $original_settings.mining_timer
-            $original_settings.sleep_seconds = $original_settings.sleep_seconds
-                
+            $original_settings.sleep_seconds = $original_settings.sleep_seconds   
             $original_settings.voice = $original_settings.voice
             $original_settings.version = $web_version
             if ($original_settings.stop_worker_delay -ne $null) {
                 $original_settings.stop_worker_delay = $original_settings.stop_worker_delay
             }
             else {
-                $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
+                $original_settings | add-member -Name "stop_worker_delay" -value "5" -MemberType NoteProperty
             }
             if ($original_settings.benchmark_time -ne $null) {
                 $original_settings.benchmark_time = $original_settings.benchmark_time
@@ -284,6 +281,18 @@ if ($get_settings.update_check -eq 'yes') {
             }
             else {
                 $original_settings | add-member -Name "mine_nvidia" -value "yes" -MemberType NoteProperty
+            }
+            if ($original_settings.rig_name -ne $null) {
+                $original_settings.rig_name = $original_settings.rig_name
+            }
+            else {
+                $original_settings | add-member -Name "rig_name" -value "" -MemberType NoteProperty
+            }
+            if ($original_settings.api_key -ne $null) {
+                $original_settings.api_key = $original_settings.api_key
+            }
+            else {
+                $original_settings | add-member -Name "api_key" -value "" -MemberType NoteProperty
             }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
@@ -323,7 +332,8 @@ else {
 
 # Set a default coin in the event the application wants to mine a coin that you do not have a wallet for.
 $default_coin = $get_coin_settings.default_coin
-# How many minutes do you want the miner to run before checking for a new coin?
+
+# Mining paramaters
 $mine_minutes = $get_settings.mining_timer
 $mine_seconds = $mine_seconds = [int]$get_settings.mining_timer * [int]60
 $set_sleep = $get_settings.sleep_seconds
@@ -335,6 +345,20 @@ $mine_amd = $get_settings.mine_amd
 $mine_nvidia = $get_settings.mine_nvidia
 $thread_error_count = 0
 
+$rigname = $get_settings.rig_name
+if (!$rigname) {
+    $rigname = $pc
+}
+else {
+    $rigname = $get_settings.rig_name
+}
+$apikey = $get_settings.api_key
+if (!$apikey) {
+}
+else {
+    $apikey = $get_settings.api_key
+}
+
 # Check if params exists
 if ($get_settings.stop_worker_delay -ne $null) {
     $stop_worker_delay = $get_settings.stop_worker_delay
@@ -342,8 +366,7 @@ if ($get_settings.stop_worker_delay -ne $null) {
 else {
     $stop_worker_delay = 5
 }
-#Pull in the computer name from Windows.
-$pc = $env:ComputerName
+
 
 # Set mode variables for best coin
 if ($static_mode -eq "yes") {
@@ -487,7 +510,7 @@ else {
     }
 }
 
-Write-Host "$TimeNow : Activating Worker on [$pc]"
+Write-Host "$TimeNow : Activating Worker on [$rigname]"
 
 # Get information about the GPU, print to screen
 Write-Host "$TimeNow : This system has the following GPU's:" -ForegroundColor Yellow
@@ -505,7 +528,12 @@ $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_
 $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty wallet
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
 $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
+
+# If configured for SRBm otherwise ignore
+if ($miner_type -eq 'SRBMiner-CN') {
 $srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
+}
+
 # Check if wallet param exists, if not then display error
 if ($symbol -ne $null) {
 }
@@ -642,7 +670,7 @@ foreach ($element in $worker_array) {
 
 if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
-    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $pc --cworker $pc --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$pc"
+    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$rigname"
 }
 else {
     # Set switches for mining CPU, AMD, NVIDIA
@@ -665,7 +693,7 @@ else {
         $nvidia_param = "--noNVIDIA"
     }
     # Configure the attributes for the mining software.
-    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $pc --pass w=$pc $cpu_param $amd_param $nvidia_param"
+    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass w=$rigname $cpu_param $amd_param $nvidia_param"
 }
 
 
@@ -907,7 +935,8 @@ Do {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
             $worker_hashrate = $get_hashrate.hashrate_total_now
-            $my_results = $get_hashrate.shares.accepted
+            $my_accepted_shares = $get_hashrate.shares.accepted
+            $my_rejected_shares = $get_hashrate.shares.rejected
         }
         Catch {
             $ErrorMessage = $_.Exception.Message
@@ -931,7 +960,9 @@ Do {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
-            $my_results = $get_hashrate.results.shares_good
+            $my_accepted_shares = $get_hashrate.results.shares_good
+            $total_shares = $get_hashrate.results.shares_total
+            $my_rejected_shares = ($total_shares - $my_accepted_shares)
         }
         Catch {
             $ErrorMessage = $_.Exception.Message
@@ -953,7 +984,7 @@ Do {
     }
     # Calculate the worker hashrate and accepted shares.
     $suggested_diff = [math]::Round($worker_hashrate * 30)
-    if ($worker_hashrate -match "[0-9]") {
+    if ($worker_hashrate -match "[0-9]" -and $worker_hashrate -ne "0" -and $null -ne $worker_hashrate) {
 
         
         # If coin value is 0.00, set to min LTC value
@@ -962,7 +993,7 @@ Do {
         }
 
         # Print the worker hashrate and accepted share to screen.
-        Write-Host "$TimeNow : Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_results" -ForegroundColor Cyan
+        Write-Host "$TimeNow : Worker hashrate:" $worker_hashrate "H/s, $best_coin Accepted Shares: $my_accepted_shares" -ForegroundColor Cyan
         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
             Write-Output "$TimeNow : Total Worker Hashrate - $worker_hashrate H/s" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         }
@@ -1022,6 +1053,24 @@ Do {
     else {
         Write-Host "$TimeNow : Waiting on worker to display hashrate." -ForegroundColor Yellow
     }
+
+    # Variables to send to Miner API
+    if ($static_mode -eq 'yes') {
+        $mining_mode = "Static"
+    }
+    else{
+        $mining_mode = "Profit"
+    }
+
+    # Communicate mining status with the Miner API if API_Key is not null.
+    if (!$apikey) {
+        
+    }
+    else {
+        $submit_mining_results = Invoke-RestMethod -Uri "https://www.profitbotpro.com/api/v1/miners.cfm?api_key=$apikey&rig_name=$rigname&mining_mode=$mining_mode&symbol=$symbol&hashrate=$worker_hashRate&reward_24h=$reward_24H&earned_24h=$earned_24H&accepted_shares=$my_accepted_shares&rejected_shares=$my_rejected_shares&algo=$algo&miner_type=$miner_type" -Method Post
+    }
+    
+    
     # Clear variables
     Remove-Variable count -ErrorAction SilentlyContinue
     Remove-Variable start_thread -ErrorAction SilentlyContinue
@@ -1078,7 +1127,7 @@ if ($enable_log -eq 'yes') {
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
         Write-Output "$TimeNow : Finished mining $best_coin, switching to $best_coin_check" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         Write-Output "$TimeNow : Mined $best_coin for: $mined_hours : $mined_minutes minutes" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-        Write-Output "$TimeNow : $best_coin worker hashrate: $worker_hashrate H/s, Accepted Shares: $my_results"  | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        Write-Output "$TimeNow : $best_coin worker hashrate: $worker_hashrate H/s, Accepted Shares: $my_accepted_shares"  | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
 }
 # Wait for the executable to stop before continuing.
