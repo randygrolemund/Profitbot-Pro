@@ -369,23 +369,26 @@ else {
     $clear_srb_cache = $get_settings.clear_srb_cache
 }
 
-# Check is Cache folder exists for SRB
-if (Test-Path $path\Cache -PathType Container) {
-    Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
+# Check is Cache folder exists for SRB, only if AMD mining is enabled
+if ($mine_amd -eq "yes") {
+    if (Test-Path $path\Cache -PathType Container) {
+        Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
+        
+        # Clear SRB Cache if value is yes.
+        if($clear_srb_cache -eq "yes") {
+            Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
+            Remove-Item $path\Cache\*
+        }
+        else {
+            Write-Host "$TimeNow : SRB Cache will NOT be purged." -ForegroundColor Magenta
+        }
     
-    # Clear SRB Cache if value is yes.
-    if($clear_srb_cache -eq "yes") {
-        Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
-        Remove-Item $path\Cache\*
     }
     else {
-        Write-Host "$TimeNow : SRB Cache will NOT be purged." -ForegroundColor Magenta
-    }
+        Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
+    }    
+}
 
-}
-else {
-    Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
-}
 
 
 
