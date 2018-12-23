@@ -813,7 +813,7 @@ $check_worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
 if ($check_worker_running -eq $null) {
     Do {
         Write-Host "$TimeNow : Waiting for worker to start...." -ForegroundColor Yellow
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds 10
         $check_worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
     } until($check_worker_running -eq $True)  
 }
