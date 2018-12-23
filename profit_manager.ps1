@@ -875,6 +875,7 @@ Do {
     else {
         if ($static_mode -eq "no") {
             Write-Host "$TimeNow : Currently mining $best_coin. Checking profits again: $TimeEnd." -ForegroundColor White
+            Start-Sleep -Seconds 5
         }
     }
     # Check if worker url is working, then get the current hashrate from mining software
