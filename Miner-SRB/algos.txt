@@ -32,8 +32,8 @@
 		"startup_script": ""
 	},
 	{
-		"algo" : "stellitev4",
-		"config" : "Config\\config-stellitev4.txt",
+		"algo" : "stellitev8",
+		"config" : "Config\\config-stellitev8.txt",
 		"hashrate" : 1,
 		"startup_script": ""
 	},

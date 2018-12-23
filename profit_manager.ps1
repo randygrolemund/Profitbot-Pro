@@ -294,6 +294,12 @@ if ($get_settings.update_check -eq 'yes') {
             else {
                 $original_settings | add-member -Name "api_key" -value "" -MemberType NoteProperty
             }
+            if ($original_settings.clear_srb_cache -ne $null) {
+                $original_settings.clear_srb_cache = $original_settings.clear_srb_cache
+            }
+            else {
+                $original_settings | add-member -Name "clear_srb_cache" -value "no" -MemberType NoteProperty
+            }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
             Write-Host "$TimeNow : Removing lockfile." -ForegroundColor White
@@ -345,6 +351,7 @@ $mine_amd = $get_settings.mine_amd
 $mine_nvidia = $get_settings.mine_nvidia
 $thread_error_count = 0
 
+# Get rig name from settings file, if does not exist, use PC name.
 $rigname = $get_settings.rig_name
 if (!$rigname) {
     $rigname = $pc
@@ -352,6 +359,37 @@ if (!$rigname) {
 else {
     $rigname = $get_settings.rig_name
 }
+$Timenow = get-date
+# Get srb cache setting from settings file, if does not exist, set variable.
+$clear_srb_cache = $get_settings.clear_srb_cache
+if (!$clear_srb_cache) {
+    $clear_srb_cache = "no"
+}
+else {
+    $clear_srb_cache = $get_settings.clear_srb_cache
+}
+
+# Check is Cache folder exists for SRB
+if (Test-Path $path\Cache -PathType Container) {
+    Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
+    
+    # Clear SRB Cache if value is yes.
+    if($clear_srb_cache -eq "yes") {
+        Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
+        Remove-Item $path\Cache\*
+    }
+    else {
+        Write-Host "$TimeNow : SRB Cache will NOT be purged." -ForegroundColor Magenta
+    }
+
+}
+else {
+    Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
+}
+
+
+
+# Get API Key from settings.
 $apikey = $get_settings.api_key
 if (!$apikey) {
 }
@@ -359,7 +397,7 @@ else {
     $apikey = $get_settings.api_key
 }
 
-# Check if params exists
+# Check if worker worker delay exists
 if ($get_settings.stop_worker_delay -ne $null) {
     $stop_worker_delay = $get_settings.stop_worker_delay
 }
@@ -605,9 +643,6 @@ if ($miner_type -eq 'mox-stak') {
 if ($miner_type -eq 'xmr-freehaven') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
 }
-if ($miner_type -eq 'cryonote-stak') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-XMRcryonote\cryonote-stak.exe"
-}
 if ($miner_type -eq 'SRBMiner-CN') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"
 }
@@ -641,7 +676,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven","cryonote-stak", "SRBMiner-CN")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {

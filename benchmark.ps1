@@ -75,7 +75,7 @@ else {
     # If previous worker is running, kill the process.
 
     # List of mining software processes
-    $worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven","cryonote-stak", "SRBMiner-CN")
+    $worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN")
 
     # Loop through each miner process, and kill the one that's running
     foreach ($element in $worker_array) {
@@ -125,9 +125,6 @@ foreach ($element in $array) {
     }
     if ($miner_type -eq 'xmr-freehaven') {
         Set-Variable -Name "miner_app" -Value "$path\Miner-XMRfreehaven\xmr-freehaven.exe"
-    }
-    if ($miner_type -eq 'cryonote-stak') {
-        Set-Variable -Name "miner_app" -Value "$path\Miner-XMRcryonote\cryonote-stak.exe"
     }
     if ($miner_type -eq 'SRBMiner-CN') {
         Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"

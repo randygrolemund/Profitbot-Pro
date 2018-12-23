@@ -1,4 +1,4 @@
-SRBMiner Cryptonight AMD GPU Miner V1.7.2
+SRBMiner Cryptonight AMD GPU Miner V1.7.3
 -----------------------------------------
 
 Download:
@@ -25,6 +25,7 @@ SUPPORTED ALGOS:
 - Cryptonight Fast 			[fast]
 - Cryptonight BitTubeV2 	[bittubev2]
 - Cryptonight StelliteV4 	[stellitev4]
+- Cryptonight StelliteV8 	[stellitev8]
 - Cryptonight ArtoCash 		[artocash]
 - Cryptonight Alloy 		[alloy]
 - Cryptonight B2N 			[b2n]
@@ -33,12 +34,17 @@ SUPPORTED ALGOS:
 - Cryptonight Red 			[mox]
 - Cryptonight Dark 			[dark]
 - Cryptonight Fest 			[festival]
-- Cryptonight FreeHaven		[freehaven]
+- Cryptonight Swap			[swap]
+- Cryptonight Upx 			[upx]
+- Cryptonight Hycon 		[hycon]
+
+
 
 
 Supports Nicehash & SSL/TLS encrypted connections
 
 Recommended drivers: Adrenalin 18.5.1, Adrenalin 18.5.2, Adrenalin 18.6.1
+
 
 
 DevFee:
@@ -50,6 +56,7 @@ Extra:
 - Watchdog that monitors your GPU threads, if they stop hashing for a few minutes, miner restarts itself
 - Hash monitor, if 5 minute average hash falls under the value you define, miner restarts itself
 - Startup monitor, if miner can't init GPU's and start mining in a defined time, restarts itself or runs a user defined script
+- Monitoring of GPU temperature, and if a critical temperature is reached, that particular GPU is turned off until it cools
 - Set system shutdown temperature, to protect your GPU's from overheating
 - Restart (disable/enable) Vega gpu's with before mining starts
 - API for rig monitoring
@@ -70,7 +77,7 @@ Note: use all lowercase characters
 "intensity" : 0-800, if set to 0 miner will try to find best settings for every video card
 "worksize" : 1-256, if set, every video card will use this worksize, if not set, using auto detected value
 "fragments" : 0,1,2,4,8,16,32,64,128 or 9999. It can boost your hashrate if you find the right value for your GPU. 9999 is for the 'old' (v.1.6.8) type.
-"heavy_mode" : 1,2 or 3. Method for doing calculations on heavy algos (Heavy, Haven, FreeHaven, Italo, BitTube). Default is 1. 3 is experimental and the fastest, but most unstable.
+"heavy_mode" : 1,2 or 3. Method for doing calculations on heavy algos (Heavy, Haven, Swap, Italo, BitTube). Default is 1. 3 is experimental and the fastest, but most unstable.
 "double_threads" : true or false, set it to true for best performance
 "giveup_limit" : number, how many times to try connecting to a pool before switching to next pool from pools.txt. If set to 0 miner will quit and won't retry connecting.
 "timeout" : number - seconds, when is a connection to a pool treated as time out
@@ -106,10 +113,12 @@ Additional parameters:
 
 "fragments" : 0,1,2,4,8,16,32,64 or 128. It can boost your hashrate if you find the right value for your GPU
 "heavy_mode" : 1,2 or 3. Method for doing calculations on heavy algos (Heavy, Haven, FreeHaven, Italo, BitTube). Default is 1.
+"off_temperature" : temperature in C, when to turn off GPU if it reaches this value. After value - 15, the GPU is turned on again automatically (default off is 85c, so turns it back when 70c)
 "target_temperature" : 0-99, if set miner will try to maintain this temperature for this particular video card. If option 'target_temperature' on top of config.txt is set, this option WILL BE IGNORED. (ADL must be enabled, works only on cards supporting OverdriveN)
 "target_fan_speed" : 0-6000, if set miner will try to set the video card fan speed to this speed. Setting is in RPM (rounds per minute) (ADL must be enabled)
 "adl_type" : 1 or 2 , 1 - USE OVERDRIVEN , 2 - USE OVERDRIVE 5. Default is 1 if not set. Option 2 (Overdrive 5) is suitable for older cards
 "persistent_memory" : true or false, if set miner will try to allocate extra memory for the video card, if it is available. CAUTION, MINER CAN BECOME UNSTABLE AND CRASH if using this option
+"old_mode" : true or false, create kernels with the old method, useful probably only on Vegas with algos that have a scratchpad <= 1MB (default is false)
 
 
 
