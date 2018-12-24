@@ -387,6 +387,15 @@ else {
     $clear_srb_cache = $get_settings.clear_srb_cache
 }
 
+# Get srb cache setting from settings file, if does not exist, set variable.
+$jce_miner_threads = $get_settings.jce_miner_threads
+if (!$jce_miner_threads) {
+    $jce_miner_threads = "2"
+}
+else {
+    $jce_miner_threads = $get_settings.jce_miner_threads
+}
+
 # Check is Cache folder exists for SRB, only if AMD mining is enabled
 if ($mine_amd -eq "yes") {
     if (Test-Path $path\Cache -PathType Container) {
