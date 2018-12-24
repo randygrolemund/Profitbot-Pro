@@ -750,21 +750,27 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
     # Set switches for mining CPU, AMD, NVIDIA
     if($mine_cpu -eq "yes"){
         $cpu_param = "--cpu $path\$pc\cpu.txt"
+        Write-Host "$TimeNow : CPU Mining is Enabled." -ForegroundColor Cyan
     }
     else {
         $cpu_param = "--noCPU"
+        Write-Host "$TimeNow : CPU Mining is Disabled." -ForegroundColor Cyan
     }
     if($mine_amd -eq "yes"){
         $amd_param = "--amd $path\$pc\$amd_config_file"
+        Write-Host "$TimeNow : AMD Mining is Enabled." -ForegroundColor Cyan
     }
     else {
         $amd_param = "--noAMD"
+        Write-Host "$TimeNow : AMD Mining is Disabled." -ForegroundColor Cyan
     }
     if($mine_nvidia -eq "yes"){
         $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
+        Write-Host "$TimeNow : Nvidia Mining is Enabled." -ForegroundColor Cyan
     }
     else {
         $nvidia_param = "--noNVIDIA"
+        Write-Host "$TimeNow : Nvidia Mining is Disabled." -ForegroundColor Cyan
     }
     # Configure the attributes for the mining software.
     $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass w=$rigname $cpu_param $amd_param $nvidia_param"
