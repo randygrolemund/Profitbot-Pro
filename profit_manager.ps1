@@ -361,12 +361,12 @@ $thread_error_count = 0
 $Timenow = get-date
 
 # Set the variation to auto (depends if pool supports)
-$jce_miner_variation= $get_settings.jce_miner_variation
+$jce_miner_variation = $get_settings.jce_miner_variation
 if (!$jce_miner_variation) {
-    $jce_miner_variation= 2
+    $jce_miner_variation = 2
 }
 else {
-    $jce_miner_variation= $get_settings.jce_miner_variation
+    $jce_miner_variation = $get_settings.jce_miner_variation
 }
 
 # Get rig name from settings file, if does not exist, use PC name.
@@ -393,7 +393,7 @@ if ($mine_amd -eq "yes") {
         Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
         
         # Clear SRB Cache if value is yes.
-        if($jce_miner_threads -eq "yes") {
+        if($clear_srb_cache -eq "yes") {
             Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
             Remove-Item $path\Cache\*
         }
