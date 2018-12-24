@@ -359,7 +359,7 @@ $thread_error_count = 0
 
 # Set the variation to auto (depends if pool supports)
 $jce_miner_variation= $get_settings.jce_miner_variation
-if (!$rigname) {
+if (!$jce_miner_variation) {
     $jce_miner_variation= 2
 }
 else {
