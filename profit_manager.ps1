@@ -772,7 +772,7 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
 elseif ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
     
     # Configure the attributes for the mining software.
-    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p w=$rigname --mport 8080 -t $jce_miner_threads"
+    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p w=$rigname --mport 8080 -t $jce_miner_threads --low "
 }
 
 
