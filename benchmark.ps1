@@ -75,7 +75,7 @@ else {
     # If previous worker is running, kill the process.
 
     # List of mining software processes
-    $worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN")
+    $worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_cpu_miner64", "jce_cn_cpu_miner32")
 
     # Loop through each miner process, and kill the one that's running
     foreach ($element in $worker_array) {
@@ -112,6 +112,16 @@ foreach ($element in $array) {
     $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty pool
     $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty wallet
     $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $element } | Select-Object -ExpandProperty amd_config_file
+
+    # If configured for SRB otherwise ignore
+        if ($miner_type -eq 'SRBMiner-CN') {
+            $srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
+        }
+
+        if ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+            $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation 
+        }
+
     $config = "config.txt"
     # These are the default apps used for mining. Updated software can be found at http://github.com/fireice-uk/xmr-stak/releases.
     if ($miner_type -eq 'xmr-stak') {
@@ -128,6 +138,12 @@ foreach ($element in $array) {
     }
     if ($miner_type -eq 'SRBMiner-CN') {
         Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"
+    }
+    if ($miner_type -eq 'jce_cn_cpu_miner32') {
+        Set-Variable -Name "miner_app" -Value "$path\Miner-JCE\jce_cn_cpu_miner32.exe"
+    }
+    if ($miner_type -eq 'jce_cn_cpu_miner64') {
+        Set-Variable -Name "miner_app" -Value "$path\Miner-JCE\jce_cn_cpu_miner64.exe"
     }
 
     Write-Host "$TimeNow : Setting Mining Application to $miner_type"
@@ -209,21 +225,7 @@ foreach ($element in $array) {
     # Get the time and date.
     $TimeNow = Get-Date
 
-    if ($miner_type -eq 'SRBMiner-CN') {
-
-            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
-            $worker_hashrate = $get_hashrate.hashrate_total_now
-            $my_results = $get_hashrate.shares.accepted
-        
-    }
-    else {
     
-            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
-            $worker_hashrate = $get_hashrate.hashrate.total[0]
-            $my_results = $get_hashrate.results.shares_good
-        
-    }
-
     #If worker is displaying hashrate, calculate fixed diff.
     if ($worker_hashrate -match "[0-9]") {
         Write-Host "$TimeNow : Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
@@ -232,20 +234,56 @@ foreach ($element in $array) {
         # Get the time and date.
         $TimeNow = Get-Date
 
-        if ($miner_type -eq 'SRBMiner-CN') {
-
+        # Get the hashrate from XMR-Stak. If error state occurs, restart the worker.
+    if ($miner_type -eq 'SRBMiner-CN') {
+        Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
             $worker_hashrate = $get_hashrate.hashrate_total_now
-            $my_results = $get_hashrate.shares.accepted
-        
+            $my_accepted_shares = $get_hashrate.shares.accepted
+            $my_rejected_shares = $get_hashrate.shares.rejected
         }
-        else {
-    
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If SRB-Miner does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+        }
+    }
+
+    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven') {
+        Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
-            $my_results = $get_hashrate.results.shares_good
-        
+            $my_accepted_shares = $get_hashrate.results.shares_good
+            $total_shares = $get_hashrate.results.shares_total
+            $my_rejected_shares = ($total_shares - $my_accepted_shares)
         }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow 
+        }
+    }
+
+    elseif($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+        Try {
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_accepted_shares = $get_hashrate.result.shares
+            $total_shares = $get_hashrate.result.shares
+            $my_rejected_shares = 0
+        }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+        }
+    }
         
         $suggested_diff = [math]::Round($worker_hashrate * 30)
         Write-Host "$TimeNow : Worker Hashrate:" $worker_hashrate "H/s, Accepted Shares: $my_results" -ForegroundColor Green
