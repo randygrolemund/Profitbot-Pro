@@ -363,7 +363,7 @@ $Timenow = get-date
 # Set the variation to auto (depends if pool supports)
 $jce_miner_variation = $get_settings.jce_miner_variation
 if (!$jce_miner_variation) {
-    $jce_miner_variation = 2
+    $jce_miner_variation = 15
 }
 else {
     $jce_miner_variation = $get_settings.jce_miner_variation
@@ -397,7 +397,7 @@ else {
 }
 
 # Check is Cache folder exists for SRB, only if AMD mining is enabled
-if ($mine_amd -eq "yes") {
+if ($mine_amd -eq 'yes' -and $miner_type -eq 'SRBMiner-CN') {
     if (Test-Path $path\Cache -PathType Container) {
         Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
         
@@ -601,8 +601,7 @@ $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like 
 if ($miner_type -eq 'SRBMiner-CN') {
     $srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
 }
-
-if ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+if ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32' -or $miner_type -eq 'jce_cn_gpu_miner64') {
     $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation 
 }
 # Check if wallet param exists, if not then display error
@@ -685,6 +684,9 @@ if ($miner_type -eq 'jce_cn_cpu_miner64') {
 if ($miner_type -eq 'jce_cn_cpu_miner32') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-JCE\jce_cn_cpu_miner32.exe"
 }
+if ($miner_type -eq 'jce_cn_gpu_miner64') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-JCE_CPU_GPU\jce_cn_gpu_miner64.exe"
+}
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
 # This section establishes a fixed diff for each worker. The format depends on which pool you connect to.
@@ -715,7 +717,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_cpu_miner64", "jce_cn_cpu_miner32")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_cpu_miner64", "jce_cn_cpu_miner32", "jce_cn_gpu_miner64")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -775,7 +777,7 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
     # Configure the attributes for the mining software.
     $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass w=$rigname $cpu_param $amd_param $nvidia_param"
 }
-elseif ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+elseif ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32' -or $miner_type -eq 'jce_cn_gpu_miner64') {
     
     # Configure the attributes for the mining software.
     $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p w=$rigname --mport 8080 -t $jce_miner_threads --low "
@@ -1070,7 +1072,7 @@ Do {
         }
     }
 
-    elseif($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+    elseif($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32' -or $miner_type -eq 'jce_cn_gpu_miner64') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]

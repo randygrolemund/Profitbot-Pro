@@ -1,0 +1,15 @@
+/*************************/
+/* JCE-GPU documentation */
+/*************************/
+
+The GPU auto-configuration obtained with --auto is a safe but often sub-optimal configuration.
+To get the maximum hashrate from your GPUs, better use the manual configuration:
+
+1) Remove any parameter --auto from your command.
+2) Add parameter -c config.txt
+3) Edit the example config.txt file to fine-tune your GPUs.
+4) If you also mine with CPUs, don't forget to configure your CPU threads.
+   Otherwise leave the "cpu_threads_conf" array empty.
+   
+Visit the GitHub page to get some examples for the most common GPUs
+https://github.com/jceminer/cn_gpu_miner

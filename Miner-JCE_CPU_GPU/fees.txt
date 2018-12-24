@@ -1,0 +1,13 @@
+** JCE dev-fees ***
+
+Devfees are:
+  3.0% when using at least one CPU mining thread with non-AES architecture
+  3.0% when using 32-bits version
+  1.5% when using only 64-bits AES CPU architecture
+  0.9% when using GPUs
+ 80.0% when using the --donate parameter
+ 
+If both GPUs and CPUs are used, fees are averaged between devices.
+
+And no fees are taken during the first minute,
+in case you want to do a fee-free test.
