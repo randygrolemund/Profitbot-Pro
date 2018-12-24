@@ -376,12 +376,12 @@ else {
 }
 $Timenow = get-date
 # Get srb cache setting from settings file, if does not exist, set variable.
-$jce_miner_threads = $get_settings.jce_miner_threads
-if (!$jce_miner_threads) {
-    $jce_miner_threads = "no"
+$clear_srb_cache = $get_settings.clear_srb_cache
+if (!$clear_srb_cache) {
+    $clear_srb_cache = "no"
 }
 else {
-    $jce_miner_threads = $get_settings.jce_miner_threads
+    $clear_srb_cache = $get_settings.clear_srb_cache
 }
 
 # Check is Cache folder exists for SRB, only if AMD mining is enabled
