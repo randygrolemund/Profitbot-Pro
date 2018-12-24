@@ -294,11 +294,17 @@ if ($get_settings.update_check -eq 'yes') {
             else {
                 $original_settings | add-member -Name "api_key" -value "" -MemberType NoteProperty
             }
-            if ($original_settings.clear_srb_cache -ne $null) {
-                $original_settings.clear_srb_cache = $original_settings.clear_srb_cache
+            if ($original_settings.jce_miner_threads -ne $null) {
+                $original_settings.jce_miner_threads = $original_settings.jce_miner_threads
             }
             else {
-                $original_settings | add-member -Name "clear_srb_cache" -value "no" -MemberType NoteProperty
+                $original_settings | add-member -Name "jce_miner_threads" -value "no" -MemberType NoteProperty
+            }
+            if ($original_settings.jce_miner_threads -ne $null) {
+                $original_settings.jce_miner_threads = $original_settings.jce_miner_threads
+            }
+            else {
+                $original_settings | add-member -Name "jce_miner_threads" -value "2" -MemberType NoteProperty
             }
             $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
             
@@ -351,6 +357,15 @@ $mine_amd = $get_settings.mine_amd
 $mine_nvidia = $get_settings.mine_nvidia
 $thread_error_count = 0
 
+# Set the variation to auto (depends if pool supports)
+$jce_miner_variation= $get_settings.jce_miner_variation
+if (!$rigname) {
+    $jce_miner_variation= 2
+}
+else {
+    $jce_miner_variation= $get_settings.jce_miner_variation
+}
+
 # Get rig name from settings file, if does not exist, use PC name.
 $rigname = $get_settings.rig_name
 if (!$rigname) {
@@ -361,12 +376,12 @@ else {
 }
 $Timenow = get-date
 # Get srb cache setting from settings file, if does not exist, set variable.
-$clear_srb_cache = $get_settings.clear_srb_cache
-if (!$clear_srb_cache) {
-    $clear_srb_cache = "no"
+$jce_miner_threads = $get_settings.jce_miner_threads
+if (!$jce_miner_threads) {
+    $jce_miner_threads = "no"
 }
 else {
-    $clear_srb_cache = $get_settings.clear_srb_cache
+    $jce_miner_threads = $get_settings.jce_miner_threads
 }
 
 # Check is Cache folder exists for SRB, only if AMD mining is enabled
@@ -375,7 +390,7 @@ if ($mine_amd -eq "yes") {
         Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
         
         # Clear SRB Cache if value is yes.
-        if($clear_srb_cache -eq "yes") {
+        if($jce_miner_threads -eq "yes") {
             Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
             Remove-Item $path\Cache\*
         }
@@ -570,11 +585,14 @@ $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $bes
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
 $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
 
-# If configured for SRBm otherwise ignore
+# If configured for SRB otherwise ignore
 if ($miner_type -eq 'SRBMiner-CN') {
-$srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
+    $srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
 }
 
+if ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+    $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation 
+}
 # Check if wallet param exists, if not then display error
 if ($symbol -ne $null) {
 }
@@ -649,6 +667,12 @@ if ($miner_type -eq 'xmr-freehaven') {
 if ($miner_type -eq 'SRBMiner-CN') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"
 }
+if ($miner_type -eq 'jce_cn_cpu_miner64') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-JCE\jce_cn_cpu_miner64.exe"
+}
+if ($miner_type -eq 'jce_cn_cpu_miner32') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-JCE\jce_cn_cpu_miner32.exe"
+}
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
 # This section establishes a fixed diff for each worker. The format depends on which pool you connect to.
@@ -679,7 +703,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_cpu_miner64", "jce_cn_cpu_miner32")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -710,7 +734,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
     $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword w=$rigname"
 }
-else {
+elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven') {
     # Set switches for mining CPU, AMD, NVIDIA
     if($mine_cpu -eq "yes"){
         $cpu_param = "--cpu $path\$pc\cpu.txt"
@@ -732,6 +756,11 @@ else {
     }
     # Configure the attributes for the mining software.
     $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass w=$rigname $cpu_param $amd_param $nvidia_param"
+}
+elseif ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+    
+    # Configure the attributes for the mining software.
+    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p w=$rigname --mport 8080"
 }
 
 
@@ -913,7 +942,7 @@ Do {
     else {
         if ($static_mode -eq "no") {
             Write-Host "$TimeNow : Currently mining $best_coin. Checking profits again: $TimeEnd." -ForegroundColor White
-            Start-Sleep -Seconds 5
+            Start-Sleep -Seconds 10
         }
     }
     # Check if worker url is working, then get the current hashrate from mining software
@@ -995,7 +1024,8 @@ Do {
             ./profit_manager.ps1
         }
     }
-    else {
+
+    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
@@ -1021,6 +1051,34 @@ Do {
             ./profit_manager.ps1
         }
     }
+
+    elseif($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32') {
+        Try {
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_accepted_shares = $get_hashrate.result.shares
+            $total_shares = $get_hashrate.result.shares
+            $my_rejected_shares = 0
+        }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+            # Write to the log.
+            if ($enable_log -eq 'yes') {
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+            }
+            Start-Sleep 5
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }
+    }
+
     # Calculate the worker hashrate and accepted shares.
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]" -and $worker_hashrate -ne "0" -and $null -ne $worker_hashrate) {
