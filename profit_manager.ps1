@@ -357,6 +357,9 @@ $mine_amd = $get_settings.mine_amd
 $mine_nvidia = $get_settings.mine_nvidia
 $thread_error_count = 0
 
+# Set date/time
+$Timenow = get-date
+
 # Set the variation to auto (depends if pool supports)
 $jce_miner_variation= $get_settings.jce_miner_variation
 if (!$jce_miner_variation) {
@@ -374,7 +377,7 @@ if (!$rigname) {
 else {
     $rigname = $get_settings.rig_name
 }
-$Timenow = get-date
+
 # Get srb cache setting from settings file, if does not exist, set variable.
 $clear_srb_cache = $get_settings.clear_srb_cache
 if (!$clear_srb_cache) {
