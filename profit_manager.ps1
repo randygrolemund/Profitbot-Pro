@@ -298,7 +298,7 @@ if ($get_settings.update_check -eq 'yes') {
                 $original_settings.jce_miner_threads = $original_settings.jce_miner_threads
             }
             else {
-                $original_settings | add-member -Name "jce_miner_threads" -value "no" -MemberType NoteProperty
+                $original_settings | add-member -Name "jce_miner_threads" -value "2" -MemberType NoteProperty
             }
             if ($original_settings.jce_miner_threads -ne $null) {
                 $original_settings.jce_miner_threads = $original_settings.jce_miner_threads
