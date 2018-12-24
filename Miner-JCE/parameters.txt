@@ -1,0 +1,99 @@
+****************************
+*** Mandatory parameters ***
+****************************
+
+-o ADDRESS:PORT      The pool address in the form ADDRESS:PORT, for example
+                     xmrpool.eu:3333
+                     It can be prefixed by:
+                       stratum+tcp://
+                       tcp://
+                       stratum+ssl://
+                       ssl://
+                     In the two later cases, SSL will be automatically enabled.
+                     The address can be a numeric dotted address like 51.144.104.161
+                     
+-u WALLET            The wallet, or login with some large pools like MiningPoolHub or Nicehash.
+                     If it's recognized, that's enough. If it's unrecognized or recognized as a different coin
+                     add the parameter --variation, see below.
+                     
+-p PASSWORD          The password, on most pool it's used as a Worked ID for your miner.
+                     If you don't know what to set, use "x".
+                     
+--auto or -c CONFIG  --auto sets an optimized configuration based on your CPU, its cache and the coin you mine.
+                     -c CONFIG allows a manual fine tuning, with CONFIG being the path to the config file.
+                     
+****************************
+*** Important parameters ***
+****************************
+                     
+--variation N        Select the Cryptonight fork. N is one of:
+                         1 = Original Cryptonight
+                         2 = Original Cryptolight
+                         3 = Cryptonight V7 fork of April-2018
+                         4 = Cryptolight V7 fork of April-2018
+                         5 = Cryptonight-Heavy
+                         6 = Cryptolight-IPBC (obsolete)
+                         7 = Cryptonight-XTL fork of May-2018
+                         8 = Cryptonight-Alloy
+                         9 = Cryptonight-MKT
+                        10 = Cryptonight-Arto
+                        11 = Cryptonight-Fast MSR fork of June-2018
+                        12 = Cryptonight-Haven fork of June-2018
+                        13 = Cryptonight-BitTube v2 of July-2018
+                        14 = Cryptolight-Red
+                        15 = Cryptonight V8 fork of October-2018
+                        16 = Pool-selected autoswitch
+                        17 = Cryptolight-Dark
+                        18 = Cryptonight-FreeHaven/Swap fork of Nov-2018
+                        19 = Cryptolight-uPlexa fork of Dec-2018
+
+--low                Miner with low priority not to freeze your computer. Has a very small impact on performances.
+                     Recommended.
+                     
+--ssl                Connect with SSL. Automatically enabled when your pool address is like ssl://......
+
+--forever            Never give-up trying to connect, usefull when you have a weak Internet connection.
+                     Recommended.
+                     
+--nicehash           Use the Nicehash-specific Nonce type. Automatically enabled when your pool is Nicehash.
+                     Not recommended, unless your pool requires it.
+                     
+--elevate            Run as admin. Often required on Windows 7 and 8[.1] and Home Editions to have the Large Pages
+                     working. Not available on Linux.
+                     Not recommended, unless you need it.
+                     
+-t N                 Hint the autoconfig to use N threads. N must not be greater than your number of CPUs.
+                     Not recommended, except to do some quick tests. Better fine-tune with parameter -c
+
+--log LOGFILE        Also output log to a file.
+                     Not recommended, except for diagnostics.
+                     
+--archi ARCHI        Hint the autoconfig to use code optimized for a specific CPU architecture. The list of valid values
+                     is at the end of the config.example.txt file.
+
+************************
+*** Minor parameters ***
+************************
+
+--retrydelay N       Delay, in seconds, between two connection attemps.
+                     
+--autoclose N        Automatically quit after N minutes.
+                     Useful when using a script to change pool and/or currency from time to time.
+
+--keepalive          Send keep-alives when the pool and the miner stay silent for a long time.
+                     
+--mport PORT         Json HTTP monitoring port (default=disabled)
+                     
+--stakjson           Output Json HTTP in XMR-Stak format when --mport is used. Ignored otherwise.
+                     
+-q                   Quit at first network problem. This is the opposite of --forever
+
+***********************
+***   Information   ***
+***********************
+
+--help               Display a summary of this documentation.
+
+--probe              List the mining-capable processors (and GPUs on the GPU version).
+
+--coins              List the coins known to the miner. Other coins can be mined with --any

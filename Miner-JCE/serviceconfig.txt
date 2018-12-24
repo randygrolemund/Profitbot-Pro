@@ -1,0 +1,21 @@
+/* This is an example of implicit parameters 
+   They are applied if and only if:
+   * The miner is started with no parameter
+   * And a file named exactly serviceconfig.txt is in the miner current directory
+   * And it contains JSON-like parameters as comma-separated quoted strings
+*/
+
+// Usual parameters
+"--auto", "--any", "--forever", "--keepalive", "--low",
+
+// Using automatic fork selection, note that numbers don't need to be quoted
+"--variation", 0,
+
+// Example pool for Monero
+"-o", "pool.monero.hashvault.pro:3333",
+
+// Example wallet (that's the donation XMR wallet)
+"-u", "43En6FLUc9EQPFjP21B73gLHBMPvUBV9LQxNA8ARsm7fLsMbybWeZgY6Dy1k77un6Z9BF8r7yxS6yTGCGdQhofYL6AvxwxZ",
+
+// Password, no matter
+"-p", "x"
