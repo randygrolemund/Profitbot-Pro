@@ -396,29 +396,6 @@ else {
     $jce_miner_threads = $get_settings.jce_miner_threads
 }
 
-# Check is Cache folder exists for SRB, only if AMD mining is enabled
-if ($mine_amd -eq 'yes' -and $miner_type -eq 'SRBMiner-CN') {
-    if (Test-Path $path\Cache -PathType Container) {
-        Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
-        
-        # Clear SRB Cache if value is yes.
-        if($clear_srb_cache -eq "yes") {
-            Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
-            Remove-Item $path\Cache\*
-        }
-        else {
-            Write-Host "$TimeNow : SRB Cache will NOT be purged." -ForegroundColor Magenta
-        }
-    
-    }
-    else {
-        Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
-    }    
-}
-
-
-
-
 # Get API Key from settings.
 $apikey = $get_settings.api_key
 if (!$apikey) {
@@ -600,6 +577,25 @@ $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like 
 # If configured for SRB otherwise ignore
 if ($miner_type -eq 'SRBMiner-CN') {
     $srb_config = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty srb_config_file
+
+    # Check is Cache folder exists for SRB, only if AMD mining is enabled
+    if ($mine_amd -eq "yes") {
+        if (Test-Path $path\Cache -PathType Container) {
+            Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
+            # Clear SRB Cache if value is yes.
+            if($clear_srb_cache -eq "yes") {
+                Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
+                Remove-Item $path\Cache\*
+            }
+            else {
+                Write-Host "$TimeNow : SRB Cache will NOT be purged." -ForegroundColor Magenta
+            }
+    
+        }
+        else {
+            Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
+        }    
+}
 }
 if ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32' -or $miner_type -eq 'jce_cn_gpu_miner64') {
     $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation 
