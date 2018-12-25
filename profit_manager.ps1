@@ -144,8 +144,8 @@ if ($get_settings.update_check -eq 'yes') {
                 ./profit_manager.ps1
             }
             if ($installed_settings_version -ne $installed_coin_settings_version) {
-                Write-Host "$TimeNow : Version mismatch. Settings.conf is v$installed_settings_version and coin_settings.conf is $installed_coin_settings_version." -ForegroundColor Red
-                Write-Host "$TimeNow : If automatic upadates are enabled, we will attempt to resolve the issue for you." -ForegroundColor Red
+                Write-Host "$TimeNow : Version mismatch: Settings.conf v$installed_settings_version and coin_settings.conf $installed_coin_settings_version." -ForegroundColor Red
+                Write-Host "$TimeNow : If automatic upadates are enabled, we will attempt to resolve the issue." -ForegroundColor Red
             }
 
             # Check if Backups folders exists, otherwise create
@@ -186,10 +186,6 @@ if ($get_settings.update_check -eq 'yes') {
             Start-Sleep 1
             $url = "https://$upgrade_url/releases/config.txt"
             $output = "$path\config.txt"
-            Invoke-WebRequest -Uri $url -OutFile $output
-            Start-Sleep 1
-            $url = "https://$upgrade_url/releases/Instructions.pdf"
-            $output = "$path\Instructions.pdf"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
             $url = "https://$upgrade_url/releases/profit_manager.ps1"
