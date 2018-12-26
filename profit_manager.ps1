@@ -172,10 +172,6 @@ if ($get_settings.update_check -eq 'yes') {
             Write-Host "$TimeNow : Downloading updates...." -ForegroundColor Cyan
             
             # Download Additional Updates
-            $url = "https://$upgrade_url/releases/benchmark.ps1"
-            $output = "$path\benchmark.ps1"
-            Invoke-WebRequest -Uri $url -OutFile $output
-            Start-Sleep 1
             $url = "https://$upgrade_url/releases/settings.conf"
             $output = "$path\settings.conf"
             Invoke-WebRequest -Uri $url -OutFile $output
@@ -202,10 +198,6 @@ if ($get_settings.update_check -eq 'yes') {
             Start-Sleep 1
             $url = "https://$upgrade_url/releases/Profitbot_Pro.bat"
             $output = "$path\Profitbot_Pro.bat"
-            Invoke-WebRequest -Uri $url -OutFile $output
-            Start-Sleep 1
-            $url = "https://$upgrade_url/releases/Benchmark.bat"
-            $output = "$path\Benchmark.bat"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
             $url = "https://$upgrade_url/releases/LICENSE"
@@ -247,12 +239,6 @@ if ($get_settings.update_check -eq 'yes') {
             }
             else {
                 $original_settings | add-member -Name "stop_worker_delay" -value "5" -MemberType NoteProperty
-            }
-            if ($original_settings.benchmark_time -ne $null) {
-                $original_settings.benchmark_time = $original_settings.benchmark_time
-            }
-            else {
-                $original_settings | add-member -Name "benchmark_time" -value "5" -MemberType NoteProperty
             }
             if ($original_settings.enable_coin_data -ne $null) {
                 $original_settings.enable_coin_data = $original_settings.enable_coin_data
