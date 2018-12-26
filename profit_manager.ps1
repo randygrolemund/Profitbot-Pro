@@ -323,21 +323,6 @@ if ($get_settings.update_check -eq 'yes') {
 
 # ************************************************************************************************************************************
 
-# If this is the 1st time running, force benchmark testing.
-if (Test-Path $path\$pc\system_benchmark.success) {
-    Write-Host "$TimeNow : This worker has already performed a benchmark, skipping." -ForegroundColor White
-}
-else {
-    Write-Host "$TimeNow : This worker has not performed a benchmark. Starting benchmark now." -ForegroundColor Red
-    # Write to the log.
-    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-        Write-Output "$TimeNow : Beginning benchmark for $PC." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-    }
-    ./benchmark.ps1
-}
-
-# ************************************************************************************************************************************
-
 # Set a default coin in the event the application wants to mine a coin that you do not have a wallet for.
 $default_coin = $get_coin_settings.default_coin
 
