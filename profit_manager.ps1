@@ -738,12 +738,12 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
         Write-Host "$TimeNow : Nvidia Mining is Disabled." -ForegroundColor Cyan
     }
     # Configure the attributes for the mining software.
-    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass w=$rigname $cpu_param $amd_param $nvidia_param"
+    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass $rigname $cpu_param $amd_param $nvidia_param"
 }
 elseif ($miner_type -eq 'jce_cn_cpu_miner64' -or $miner_type -eq 'jce_cn_cpu_miner32' -or $miner_type -eq 'jce_cn_gpu_miner64') {
     
     # Configure the attributes for the mining software.
-    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p w=$rigname --mport 8080 -t $jce_miner_threads --low "
+    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p $rigname --mport 8080 -t $jce_miner_threads --low "
 }
 
 
