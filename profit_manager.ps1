@@ -641,9 +641,11 @@ if ($miner_type -eq 'xmr-freehaven') {
 if ($miner_type -eq 'SRBMiner-CN') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-SRB\SRBMiner-CN.exe"
 }
-
 if ($miner_type -eq 'jce_cn_gpu_miner64') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-JCE_CPU_GPU\jce_cn_gpu_miner64.exe"
+}
+if ($miner_type -eq 'teamredminer') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-TeamRed\teamredminer.exe"
 }
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
@@ -675,7 +677,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "teamredminer")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -738,7 +740,12 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
 elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
     
     # Configure the attributes for the mining software.
-    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation --low -o $pool -u $wallet$fixed_diff -p $rigname --mport 8080 -t $jce_miner_threads --low "
+    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation -o $pool -u $wallet$fixed_diff -p $rigname --mport 8080 -t $jce_miner_threads --low "
+}
+elseif ($miner_type -eq 'teamredminer') {
+    
+    # Configure the attributes for the mining software.
+    $worker_settings = "-a cnv8 -o stratum+tcp://$pool -u $wallet$fixed_diff -p $rigname --api_listen=127.0.0.1:8080"
 }
 
 
@@ -1031,6 +1038,33 @@ Do {
     }
 
     elseif($miner_type -eq 'jce_cn_gpu_miner64') {
+        Try {
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_accepted_shares = $get_hashrate.result.shares
+            $total_shares = $get_hashrate.result.shares
+            $my_rejected_shares = 0
+        }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+            # Write to the log.
+            if ($enable_log -eq 'yes') {
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+            }
+            Start-Sleep 5
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }
+    }
+
+    elseif($miner_type -eq 'teamredminer') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
