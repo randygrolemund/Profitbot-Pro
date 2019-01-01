@@ -48,6 +48,12 @@
 		"config" : "Config\\config-litev7.txt",
 		"hashrate" : 1,
 		"startup_script": ""
+	},
+	{
+		"algo" : "turtle",
+		"config" : "Config\\config-turtle.txt",
+		"hashrate" : 1,
+		"startup_script": ""
 	}
 ]
 }
