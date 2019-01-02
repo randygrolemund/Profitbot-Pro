@@ -1064,32 +1064,6 @@ Do {
         }
     }
 
-    elseif($miner_type -eq 'teamredminer') {
-        Try {
-            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
-            $worker_hashrate = $get_hashrate.hashrate.total[0]
-            $my_accepted_shares = $get_hashrate.result.shares
-            $total_shares = $get_hashrate.result.shares
-            $my_rejected_shares = 0
-        }
-        Catch {
-            $ErrorMessage = $_.Exception.Message
-            $FailedItem = $_.Exception.ItemName
-            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
-            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
-            # Write to the log.
-            if ($enable_log -eq 'yes') {
-                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                }
-            }
-            Start-Sleep 5
-            # Clear all variables
-            Remove-Variable * -ErrorAction SilentlyContinue
-            ./profit_manager.ps1
-        }
-    }
 
     # Calculate the worker hashrate and accepted shares.
     $suggested_diff = [math]::Round($worker_hashrate * 30)
