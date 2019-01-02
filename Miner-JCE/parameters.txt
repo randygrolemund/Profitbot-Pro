@@ -46,6 +46,7 @@
                         17 = Cryptolight-Dark
                         18 = Cryptonight-FreeHaven/Swap fork of Nov-2018
                         19 = Cryptolight-uPlexa fork of Dec-2018
+                        20 = Cryptolight-Turtle v2 fork of Dec-2018
 
 --low                Miner with low priority not to freeze your computer. Has a very small impact on performances.
                      Recommended.
@@ -82,7 +83,7 @@
 
 --keepalive          Send keep-alives when the pool and the miner stay silent for a long time.
                      
---mport PORT         Json HTTP monitoring port (default=disabled)
+--mport PORT         Json HTTP monitoring and managment port (default=disabled)
                      
 --stakjson           Output Json HTTP in XMR-Stak format when --mport is used. Ignored otherwise.
                      
