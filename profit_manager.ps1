@@ -644,8 +644,8 @@ if ($miner_type -eq 'SRBMiner-CN') {
 if ($miner_type -eq 'jce_cn_gpu_miner64') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-JCE_CPU_GPU\jce_cn_gpu_miner64.exe"
 }
-if ($miner_type -eq 'teamredminer') {
-    Set-Variable -Name "miner_app" -Value "$path\Miner-TeamRed\teamredminer.exe"
+if ($miner_type -eq 'xtl-stak') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-XTLstak\xtl-stak.exe"
 }
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
@@ -677,7 +677,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "teamredminer")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -708,7 +708,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
     $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword $rigname"
 }
-elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven') {
+elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak') {
     # Set switches for mining CPU, AMD, NVIDIA
     if($mine_cpu -eq "yes"){
         $cpu_param = "--cpu $path\$pc\cpu.txt"
@@ -742,12 +742,6 @@ elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
     # Configure the attributes for the mining software.
     $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation -o $pool -u $wallet$fixed_diff -p $rigname --mport 8080 -t $jce_miner_threads --low "
 }
-elseif ($miner_type -eq 'teamredminer') {
-    
-    # Configure the attributes for the mining software.
-    $worker_settings = "-a cnv8 -o stratum+tcp://$pool -u $wallet$fixed_diff -p $rigname --api_listen=127.0.0.1:8080"
-}
-
 
 Write-Host "$TimeNow : Starting $miner_type in another window."
 
@@ -1010,7 +1004,7 @@ Do {
         }
     }
 
-    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven') {
+    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
