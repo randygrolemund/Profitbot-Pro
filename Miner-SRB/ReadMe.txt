@@ -1,4 +1,4 @@
-SRBMiner Cryptonight AMD GPU Miner V1.7.5
+SRBMiner Cryptonight AMD GPU Miner V1.7.6
 -----------------------------------------
 
 Download:
@@ -84,6 +84,7 @@ Note: use all lowercase characters
 "fragments" : 0,1,2,4,8,16,32,64,128 or 9999. It can boost your hashrate if you find the right value for your GPU. 9999 is for the 'old' (v.1.6.8) type.
 "heavy_mode" : 1,2 or 3. Method for doing calculations on heavy algos (Heavy, Haven, Swap, Italo, BitTube). Default is 1. 3 is experimental and the fastest, but most unstable.
 "old_mode" : true or false, create kernels with the old method, useful probably only on Vegas with algos that have a scratchpad <= 1MB (default is false)
+"thread_delay" : 1-1000, delay to maintain between same gpu threads (default is 319)
 "double_threads" : true or false, set it to true for best performance
 "giveup_limit" : number, how many times to try connecting to a pool before switching to next pool from pools.txt. If set to 0 miner will quit and won't retry connecting.
 "timeout" : number - seconds, when is a connection to a pool treated as time out
@@ -125,6 +126,7 @@ Additional parameters:
 "adl_type" : 1 or 2 , 1 - USE OVERDRIVEN , 2 - USE OVERDRIVE 5. Default is 1 if not set. Option 2 (Overdrive 5) is suitable for older cards
 "persistent_memory" : true or false, if set miner will try to allocate extra memory for the video card, if it is available. CAUTION, MINER CAN BECOME UNSTABLE AND CRASH if using this option
 "old_mode" : true or false, create kernels with the old method, useful probably only on Vegas with algos that have a scratchpad <= 1MB (default is false)
+"thread_delay" : 1-1000, delay to maintain between same gpu threads (default is 319)
 
 
 
@@ -213,6 +215,9 @@ Parameters:
 --apienable (enable statistics API)
 --apiport value (port where statistics API is reachable - default 21555)
 --apirigname value (identifier name for your rig in statistics API)
+--apirigrestarturl value (user defined url which accessed in browser triggers computer restart)
+--apiminerrestarturl value (user defined url which accessed in browser triggers miner restart)
+--apirigshutdownurl value (user defined url which accessed in browser triggers computer shutdown)
 --forcedshutdown (never try to free resources on restart/shutdown)
 --gpuerrorsalert value(notify when number of compute errors for any GPU reaches this value)
 --maxstartuptime value(max time to init gpu's and start mining, min 10 sec, max 10 min, def. 2 min)
@@ -223,6 +228,45 @@ Parameters:
 
 
 When setting any of the parameters, don't use " or ' around the value!
+
+
+How to access GUI HTTP statistics page?
+----------------------------------
+First you must enable API, by using the --apienable parameter in start.bat
+Set your rig (computer) name with --apirigname myrigname also in start.bat
+
+After you have started the miner, you can access the stats page in your browser :
+http://127.0.0.1:21555/stats
+
+There are also three other parameters that can help you to restart miner, reboot or shutdown your machine remotely :
+
+--apirigrestarturl
+This should be a unique string, which accessed in browser results in a computer restart. Miner needs to have admin privileges.
+
+--apirigshutdownurl
+This should be a unique string, which accessed in browser results in a computer shutdown. Miner needs to have admin privileges.
+
+--apiminerrestarturl
+This should be a unique string, which accessed in browser restart SRBMiner.
+
+
+
+Example start.bat:
+SRBMiner-CN.exe --config Config\config-normalv8.txt --pools Pools\pools-normalv8.txt --apienable --apirigrestarturl 12345fff --apirigshutdownurl 54321fff --apiminerrestarturl restart_my_srb
+
+Visiting this url restarts your machine:
+http://127.0.0.1:21555/12345fff
+
+Visiting this url turns off your machine:
+http://127.0.0.1:21555/54321fff
+
+Visiting this url restarts SRBMiner:
+http://127.0.0.1:21555/restart_my_srb
+
+
+Of course if you are going to 'open' this HTTP interface to the world, you better use complex urls so nobody can guess them easilly and turn off your rig :)
+
+
 
 
 To setup your video cards in cmd line :
@@ -240,6 +284,7 @@ Parameters:
 --cgpuworksize value (gpu worksize, comma separated values)
 --cgpufragments value(can be 0,1,2,4,8,16,32,64,128, comma separated values)
 --cgpuheavymode value (mode for heavy algos (1, 2, 3), comma separated values)
+--cgputhreaddelay value (delay to maintain between same gpu threads, 1 - 1000, comma separated values)
 --cgputargettemperature value (gpu temperature, comma separated values)
 --cgputargetfanspeed value (gpu fan speed in RPM, comma separated values)
 --cgpuofftemperature value (gpu turn off temperature, comma separated values)

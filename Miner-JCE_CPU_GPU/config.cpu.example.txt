@@ -1,0 +1,281 @@
+/*
+ *** Documentation and Example - Manual Threads configuration ***
+ *
+ * This config file is intended to be used with the -c parameter.
+ *
+ * Most people just don't need to manually configure the threads, so better
+ * just run the miner with the --auto parameter and you're good.
+ *
+ * Otherwise, I first introduce the terms used here and in the logs:
+ *   Thread : that's a software thread of execution in the program, when there
+ *            are N, they're always numbered from 0 to N-1.
+ *   CPU    : that's a processor in your computer, either logical or physical.
+ *
+ *
+ * Each line of the array "cpu_threads_conf" below will be a concurrent thread
+ * of execution. It contains at least three mandatory values:
+ *
+ * "cpu_architecture"    - You probably have no good reason to change it from
+ *                         "auto" but you can use a specialized architecture
+ *                         if you wish. Supported architectures are listed below.
+ *                         Of course not every single architecture leads to a 
+ *                         dedicated implementation, but a more specialized one
+ *                         may hint a more specialized, and slightly faster,
+ *                         implementation.
+ *                         "generic" is the simplest implementation that works
+ *                         with every possible SSE2-capable CPU in existence,
+ *                         use it if you have a very exotic CPU (VIA...)
+ *                         
+ * "affine_to_cpu"       - Bind the thread to a CPU, which helps to avoid cache
+ *                         misses. Otherwise use 'false' and let the OS manage
+ *                         the selection of CPUs.
+ *                         You can use an array of CPU numbers if you want the
+ *                         thread to run on several CPUs at the same time.
+ *                         e. g. "affine_to_cpu":[0,1,2,3]
+ *                         
+ * "use_cache"           - Use 'false' to disable all levels of CPU cache for a
+ *                         thread and let the CPU work directly with the memory.
+ *                         It usually implies a performance drop of 90%, so use
+ *                         'false' only on computers which really need the CPU
+ *                         caches for a more important task.
+ *                         It can also be useful to make otherwise unused cores
+ *                         mine to get a few extra hashes, typically for
+ *                         Cryptonight-Heavy.
+ *                         Ignored when "dual_mine_with" is present, since in
+ *                         that case the cache is recycled from another thread,
+ *                         see below.
+ *                         
+ * "dual_mine_with"      - (Optional)
+ *                         Set a thread (not CPU!) index to grab some of its
+ *                         cache and memory instead of allocating dedicated
+ *                         ones. It helps in the (pretty rare) case of a CPU
+ *                         with several cores but very low cache.
+ *                         If thread X "dual_mine_with" thread Y, X will run
+ *                         at ~25% speed and Y at ~90% speed, with X reusing
+ *                         Y cache and memory while Y doesn't use them.
+ *                         This happens when Y is busy doing heavy AES software
+ *                         emulation with its registers, and that's why this
+ *                         mode is not available with hardware AES.
+ *                         This mode is also incompatible with Cryptonight-
+ *                         Heavy, where it was observed always to lower hashrate.
+ *                         
+ * "multi_hash"          - (Optional)
+ *                         Make a thread mine several hashes at the same time,
+ *                         using multiple amounts of memory and cache.
+ *                         This is useful for CPUs with a lot of cache like Xeon
+ *                         or to mine with only a few Cores but all available
+ *                         cache. This is the opposite concept of "dual_mine_with"
+ *                         and both are of course mutually exclusive.
+ *                         It also often gives a boost when mining Cryptolight
+ *                         or IPBC.
+ *                         Accepted values are false, 1, 2, 3, 4, 5 and 6.
+ *                         (false and 1 both mean "no multi-hash"). Default is 1.
+ *
+ *                         
+ */
+
+/* Note: maximum number of cpu and threads is 64 */
+ 
+/* This is an EXAMPLE for a typical four-core miner */
+
+"cpu_threads_conf" : 
+[ 
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 0, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 1, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 2, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 3, "use_cache" : true },
+]
+ 
+/* This is an EXAMPLE for a two-core non-AES 2M cache miner using dual-mining 
+
+"cpu_threads_conf" : 
+[ 
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 0, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 1, "use_cache" : true, "dual_mine_with": 0 },
+]
+ 
+*/
+/* This is an EXAMPLE for a four-core 12M cache Core2-Xeon */
+/* Simple-hash threads 0 and 2 consume 2M cache each */
+/* Double-hash threads 1 and 3 consume 4M cache each */
+/* Total: 12M 
+
+"cpu_threads_conf" : 
+[ 
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 0, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 1, "use_cache" : true, "multi_hash": 2 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 2, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 3, "use_cache" : true, "multi_hash": 2 },
+]
+ 
+*/
+/* This is an EXAMPLE for a 8-core (16 logical CPU) 16M cache Ryzen 1700 mining Cryptonight-Heavy */
+/* Four normal threads consume 4M cache each */
+/* The unused *physical* cores mine with no-cache for a few extra hashes 
+
+"cpu_threads_conf" :  
+[  
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 1, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 2, "use_cache" : false },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 3, "use_cache" : false },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 5, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 6, "use_cache" : false },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 7, "use_cache" : false },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 9, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 10, "use_cache" : false },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 11, "use_cache" : false },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 13, "use_cache" : true },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 14, "use_cache" : false },    
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 15, "use_cache" : false },    
+]
+ 
+*/
+/* This is an EXAMPLE for a 6-core (12 logical CPU) 16M cache Ryzen 1600 mining IPBC */
+/* Ten normal threads consume 1M cache each */
+/* Two dual-hash threads consume 2M cache each */
+/* Total 14M */
+/* On Ryzen + IPBC, leaving 2M unused cache curiously gives better performance. 
+
+"cpu_threads_conf" : 
+[ 
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 0, "use_cache" : true, "multi_hash":2 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 1, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 2, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 3, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 4, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 5, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 6, "use_cache" : true, "multi_hash":2 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 7, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 8, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" : 9, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" :10, "use_cache" : true, "multi_hash":1 },
+     { "cpu_architecture" : "auto", "affine_to_cpu" :11, "use_cache" : true, "multi_hash":1 },
+]
+
+*/
+
+/*********************************************************************/
+/**** List of supported values for cpu_architecture
+ **** Most are aliases, for example pentium4 and prescott are the same.
+
+auto
+generic
+generic_sse3
+generic_sse4
+generic_aes
+pentium4
+core2
+core2_sse4
+athlon64
+athlon64_sse3
+prescott
+cedarmill
+foster
+prestonia
+gallatin
+nocona
+irwindale
+cranford
+potomac
+dempsey
+smithfield
+presler
+pentiumm
+banias
+celeronm
+dothan
+pineview
+atom
+diamondville
+silverthorne
+cedarview
+conroe
+kentsfield
+allendale
+merom
+wolfdale
+penryn
+yorkfield
+woodcrest
+clovertown
+harpertown
+tigerton
+dunnington
+gainestown
+nehalem
+bloomfield
+lynnfield
+westmere
+gulftown
+clarkdale
+arrandale
+sandybridge
+ivybridge
+haswell
+broadwell
+skylake
+kabylake
+coffeelake
+opteron
+athlonfx
+turion
+sempron
+orleans
+venice
+winchester
+newcastle
+sandiego
+clawhammer
+windsor
+toledo
+brisbane
+manchester
+dublin
+paris
+palermo
+sonora
+albany
+manila
+sherman
+sparta
+keene
+lancaster
+taylor
+trinidad
+richmond
+tyler
+griffin
+phenom
+toliman
+agena
+kuma
+deneb
+sargas
+callisto
+heka
+phenomii
+zosma
+thuban
+champlain
+regor
+rana
+propus
+llano
+brazosontario
+brazoszacate
+brazosdesna
+bulldozer
+vishera
+trinity
+richland
+kaveri
+godavari
+carrizo
+bristolridge
+stoneyridge
+kabini
+mullins
+ryzen
+magnycours
+
+*/

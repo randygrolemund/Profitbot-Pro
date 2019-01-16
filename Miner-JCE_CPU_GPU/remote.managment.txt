@@ -1,0 +1,33 @@
+Remote Managment
+================
+
+A very simplified remote managment through HTTP is available.
+
+To enable it, use the HTTP server parameter --mport P where P is the port number.
+The server is disabled by default.
+
+Assuming your rig address is righost and the port is 1234, simply navigate
+(using any web brower or a dedicated tool) to those pseudo-pages:
+  http://righost:1234/ to get the miner status in JSON format.
+  http://righost:1234/pause to pause the miner.
+  http://righost:1234/resume to resume the miner.
+  http://righost:1234/pause-cpu to pause all CPUs.
+  http://righost:1234/pause-gpu to pause all GPUs.
+  http://righost:1234/pause-gpu-N to pause GPU N (N decimal or hexa).
+  http://righost:1234/stop to kill the miner.
+  http://righost:1234/restart to restart the miner.
+  
+All commands received by the miner are logged, even if they don't make sense, like resuming
+an already running miner or pausing a GPU you don't have or don't use. In such case they
+do nothing else than being logged.
+You can stop or restart the miner even when it's in paused state.
+
+Internally, a page is considered navigated when the HTTP server receives a GET request.
+Doing such with a web browser is both trivial and non-intuitive, this feature is designed to
+be used through an external tool or html shortcuts.
+
+The restart allows you to do an indirect coin/pool switch: by configuring the miner only with external
+files (typically with the serviceconfig.txt parameter file) you can:
+* Edit the config files
+* Send the restart command
+* Let the miner restart and connect to the potentially new pool, to mine a potentially new coin etc.
