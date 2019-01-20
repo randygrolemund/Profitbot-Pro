@@ -17,10 +17,7 @@ Write-Host "
      |---------------------------------------------------------------------------------------|
      |                       Free to use, donations kindly accepted.                         |
      |                                                                                       |
-     |               ETH Address: 0x32cd01077b6cc9cedb17feadfc24cce0a7b775f8                 |
-     |                   BTC Address: 1EUFmXVcyWR85c57z9wtr5Q6KxyBbR2UUn                     |
      |                                                                                       |
-     |         Credit for XMR-Stak goes to Fierce-UK at http://github.com/fireice-uk         |
      |                                                                                       |
      |                           https://www.profitbotpro.com                                |
      |_______________________________________________________________________________________|
@@ -625,7 +622,7 @@ if (Test-Path $path\$pc\pools.txt) {
 else {
     Write-Host "$TimeNow : Could not find Pools.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
 }
-# These are the default apps used for mining. Updated software can be found at http://github.com/fireice-uk/xmr-stak/releases.
+# These are the default apps used for mining. Updated software can be found on Github.
 if ($miner_type -eq 'xmr-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XMRstak\xmr-stak.exe"
 }
@@ -646,6 +643,9 @@ if ($miner_type -eq 'jce_cn_gpu_miner64') {
 }
 if ($miner_type -eq 'xtl-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-XTLstak\xtl-stak.exe"
+}
+if ($miner_type -eq 'trtl-stak') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-TRTLstak\trtl-stak.exe"
 }
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
@@ -677,7 +677,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak")
+$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak", "trtl-stak")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -708,7 +708,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
     $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword $rigname"
 }
-elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak') {
+elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak') {
     # Set switches for mining CPU, AMD, NVIDIA
     if($mine_cpu -eq "yes"){
         $cpu_param = "--cpu $path\$pc\cpu.txt"
@@ -942,7 +942,7 @@ Do {
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : If Worker does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
             Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
             # Write to the log.
             if ($enable_log -eq 'yes') {
@@ -977,7 +977,7 @@ Do {
     # Get the current date and time.
     $TimeNow = Get-Date
 
-    # Get the hashrate from XMR-Stak. If error state occurs, restart the worker.
+    # Get the hashrate from SRBMiner. If error state occurs, restart the worker.
     if ($miner_type -eq 'SRBMiner-CN') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
@@ -1004,7 +1004,7 @@ Do {
         }
     }
 
-    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak') {
+    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
@@ -1016,7 +1016,7 @@ Do {
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : If Worker does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
             Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
             # Write to the log.
             if ($enable_log -eq 'yes') {
@@ -1043,7 +1043,7 @@ Do {
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host "$TimeNow : If XMR-Stak does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : If Worker does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
             Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
             # Write to the log.
             if ($enable_log -eq 'yes') {
