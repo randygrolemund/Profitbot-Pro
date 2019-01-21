@@ -115,12 +115,12 @@ if ($get_settings.update_check -eq 'yes') {
             if (Test-Path $path\lockfile.lock) {
                 $read_lockfile = Get-Content $path\lockfile.lock -First 1
                 Write-Host "$TimeNow : Lockfile is owned by $read_lockfile."
-                if($PC -ne $read_lockfile){
+                if ($PC -ne $read_lockfile) {
                     Write-Host "$TimeNow : Another worker has started the update process, waiting 30 seconds." -ForegroundColor Red
                     # Write to log
-                    if ($enable_log -eq 'yes'){
+                    if ($enable_log -eq 'yes') {
                         # Write to the log
-                        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log){
+                        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                             Write-Output "$TimeNow : Pausing while worker $read_lockfile performs software upgrade." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                         }
                     }
@@ -466,11 +466,13 @@ else {
         # Write to the log.
         if ($enable_log -eq 'yes') {
             if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-            Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
             }
         }
         # Clear all variables
         Remove-Variable * -ErrorAction SilentlyContinue
+        
+        #Restart the worker
         ./profit_manager.ps1
     }
 }
@@ -499,7 +501,7 @@ if ($static_mode -eq 'yes') {
 else {
     #Check if the best coin to mine is in your list.
     if ($best_coin -in $Array.ToUpper()) {
-        if($top_list_position -eq 1000){
+        if ($top_list_position -eq 1000) {
             Write-Host "$TimeNow : No top list coint match. You will be mining your default coin." -ForegroundColor Magenta  
         }
         else {
@@ -547,7 +549,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
         if (Test-Path $path\Cache -PathType Container) {
             Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (OK!)" -ForegroundColor green
             # Clear SRB Cache if value is yes.
-            if($clear_srb_cache -eq "yes") {
+            if ($clear_srb_cache -eq "yes") {
                 Write-Host "$TimeNow : Purging SRB Cache." -ForegroundColor red
                 Remove-Item $path\Cache\*
             }
@@ -559,16 +561,13 @@ if ($miner_type -eq 'SRBMiner-CN') {
         else {
             Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
         }    
-}
+    }
 }
 if ($miner_type -eq 'jce_cn_gpu_miner64') {
     $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation 
 }
 # Check if wallet param exists, if not then display error
-if ($symbol -ne $null) {
-}
-else {
-
+if (!$symbol) {
 
     # Write to the log.
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
@@ -589,7 +588,7 @@ else {
 }
 Write-Host "$TimeNow : Establishing connection to:" $pool
 Write-Host "$TimeNow : Switching Algo to:" $Algo
-Write-Host "$TimeNow : Authorizing inbound funds to Wallet:" ($wallet.SubString(0,35) + "...") -ForegroundColor Cyan
+Write-Host "$TimeNow : Authorizing inbound funds to Wallet:" ($wallet.SubString(0, 35) + "...") -ForegroundColor Cyan
 
 # Verify Diff config file is present
 If (Test-Path -Path $Path\$pc\$symbol.conf) {
@@ -677,7 +676,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak","mox-stak","b2n-miner","xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak", "trtl-stak")
+$worker_array = @("xmr-stak", "mox-stak", "b2n-miner", "xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak", "trtl-stak")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -694,7 +693,7 @@ foreach ($element in $worker_array) {
         # kill after five seconds
         Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
         
-            Start-Sleep $stop_worker_delay
+        Start-Sleep $stop_worker_delay
 
         if (!$worker_running.HasExited) {
             $worker_running | Stop-Process -Force | out-null
@@ -710,7 +709,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
 }
 elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak') {
     # Set switches for mining CPU, AMD, NVIDIA
-    if($mine_cpu -eq "yes"){
+    if ($mine_cpu -eq "yes") {
         $cpu_param = "--cpu $path\$pc\cpu.txt"
         Write-Host "$TimeNow : CPU Mining is Enabled." -ForegroundColor Cyan
     }
@@ -718,7 +717,7 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
         $cpu_param = "--noCPU"
         Write-Host "$TimeNow : CPU Mining is Disabled." -ForegroundColor Cyan
     }
-    if($mine_amd -eq "yes"){
+    if ($mine_amd -eq "yes") {
         $amd_param = "--amd $path\$pc\$amd_config_file"
         Write-Host "$TimeNow : AMD Mining is Enabled." -ForegroundColor Cyan
     }
@@ -726,7 +725,7 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
         $amd_param = "--noAMD"
         Write-Host "$TimeNow : AMD Mining is Disabled." -ForegroundColor Cyan
     }
-    if($mine_nvidia -eq "yes"){
+    if ($mine_nvidia -eq "yes") {
         $nvidia_param = "--nvidia $path\$pc\nvidia.txt"
         Write-Host "$TimeNow : Nvidia Mining is Enabled." -ForegroundColor Cyan
     }
@@ -935,26 +934,26 @@ Do {
         Start-Sleep -Seconds 10
     }
     
-        try {
-            $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
-        }
-        catch {
-            $ErrorMessage = $_.Exception.Message
-            $FailedItem = $_.Exception.ItemName
-            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
-            Write-Host "$TimeNow : If Worker does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
-            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
-            # Write to the log.
-            if ($enable_log -eq 'yes') {
-                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+    try {
+        $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
+    }
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+        Write-Host "$TimeNow : If Worker does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+        Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+        # Write to the log.
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
                 Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
-                }
             }
-            Start-Sleep 5
-            # Clear all variables
-            Remove-Variable * -ErrorAction SilentlyContinue
-            ./profit_manager.ps1
-        }   
+        }
+        Start-Sleep 5
+        # Clear all variables
+        Remove-Variable * -ErrorAction SilentlyContinue
+        ./profit_manager.ps1
+    }   
     
 
     # Refresh coin values
@@ -994,7 +993,7 @@ Do {
             # Write to the log.
             if ($enable_log -eq 'yes') {
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
             }
             Start-Sleep 5
@@ -1004,7 +1003,7 @@ Do {
         }
     }
 
-    elseif($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak') {
+    elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api.json" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
@@ -1021,7 +1020,7 @@ Do {
             # Write to the log.
             if ($enable_log -eq 'yes') {
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
             }
             Start-Sleep 5
@@ -1031,7 +1030,7 @@ Do {
         }
     }
 
-    elseif($miner_type -eq 'jce_cn_gpu_miner64') {
+    elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
         Try {
             $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
             $worker_hashrate = $get_hashrate.hashrate.total[0]
@@ -1048,7 +1047,7 @@ Do {
             # Write to the log.
             if ($enable_log -eq 'yes') {
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
             }
             Start-Sleep 5
@@ -1065,7 +1064,7 @@ Do {
 
         
         # If coin value is 0.00, set to min LTC value
-        if($coin_usd -eq 0){
+        if ($coin_usd -eq 0) {
             $coin_usd = 0.00000054
         }
 
@@ -1135,7 +1134,7 @@ Do {
     if ($static_mode -eq 'yes') {
         $mining_mode = "Static"
     }
-    else{
+    else {
         $mining_mode = "Profit"
     }
 
@@ -1156,7 +1155,23 @@ Do {
     Remove-Variable i -ErrorAction SilentlyContinue
     Remove-Variable get_coin -ErrorAction SilentlyContinue
     Remove-Variable last_updated -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds $set_sleep
+    
+    #If cannot get sleep seconds from the config file, clear all variables and restart
+    try {
+        Start-Sleep -Seconds $set_sleep
+    }
+    catch {
+        # Write to the log.
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Cannot read from config. The worker is now restarting." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+        # Clear all variables
+        Remove-Variable * -ErrorAction SilentlyContinue
+
+        # Reload the worker.
+        .\profit_manager.ps1
+    }
+    
 }
 While ($best_coin -eq $best_coin_check)
 
