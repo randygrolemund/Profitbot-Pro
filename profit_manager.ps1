@@ -193,7 +193,7 @@ if ($get_settings.update_check -eq 'yes') {
             $output = "$path\Profitbot_Pro.lnk"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
-            $url = "https://api.profitbotpro.coml/releases/profitbot_pro/Profitbot_Pro.bat"
+            $url = "https://api.profitbotpro.com/releases/profitbot_pro/Profitbot_Pro.bat"
             $output = "$path\Profitbot_Pro.bat"
             Invoke-WebRequest -Uri $url -OutFile $output
             Start-Sleep 1
