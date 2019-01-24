@@ -1137,7 +1137,7 @@ Do {
     }
 
     # Restart worker if waiting_hashrate count is greater than 5
-    if ($worker_hashrate -ge 5) {
+    if ($waiting_hashrate -ge 5) {
         # Write to the log.
         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
             Write-Output "$TimeNow : Reached max worker hashrate fail count. Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
