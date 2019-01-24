@@ -1,6 +1,6 @@
 {
-    "version":  "6.07.02",
-    "default_coin":  "ARMS",
+    "version":  "6.09.01",
+    "default_coin":  "XTA",
     "my_coins":  [
                      "XCY",
                      "XLC",
@@ -8,38 +8,50 @@
                      "NBR",
                      "XCASH",
                      "MOX",
-					 "ZLS",
+                     "ZLS",
                      "XWP",
                      "BLOC",
                      "XHV",
                      "TUBE",
                      "XMR",
                      "GRFT",
-					 "LOKI",
-					 "BTOR",
-					 "MC",
-					 "TRTL",
-					 "PYX",
-					 "UPX",
-					 "CCH",
-					 "DEGO",
-					 "BTR",
-					 "RMX",
-					 "LMO",
-					 "FRED",
-					 "ETNXP",
-					 "PLE",
-					 "WRKZ",
-					 "ARMS",
-					 "CX",
-					 "XTL",
-					 "XRN",
+                     "LOKI",
+                     "BTOR",
+                     "MC",
+                     "TRTL",
+                     "PYX",
+                     "UPX",
+                     "CCH",
+                     "DEGO",
+                     "BTR",
+                     "RMX",
+                     "LMO",
+                     "FRED",
+                     "ETNXP",
+                     "PLE",
+                     "WRKZ",
+                     "ARMS",
+                     "CX",
+                     "XTL",
+                     "XRN",
                      "NBX",
-					 "CCX",
-					 "B2N"
+                     "CCX",
+                     "B2N",
+					 "XTA"
                  ],
     "mining_params":  [
                           {
+                              "symbol":  "XTA",
+                              "software":  "SRBMiner-CN",
+                              "static_param":  "2",
+                              "algo":  "cryptonight_haven",
+                              "pool":  "xta.majanetwork.com:2233",
+                              "wallet":  "ipNfQ3e7PJFCEEDhvzkJUC6bQ3NGCz4Y71xBSrg2NM7ceEUN2gBtZCxRDrSjZWqUqLKV4pUgAwhvoXTJfVry6wYD2ncDurZrP",
+                              "payment_id":  "",
+                              "amd_config_file":  "amd_tube.txt",
+                              "srb_config_file":  "config-haven.txt"
+                          },
+						  {
                               "symbol":  "OMB",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
@@ -50,7 +62,7 @@
                               "amd_config_file":  "amd_TUBE.txt",
                               "srb_config_file":  "config-heavy.txt"
                           },
-						  {
+                          {
                               "symbol":  "NBX",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
@@ -62,7 +74,7 @@
                               "srb_config_file":  "config-litev7.txt",
                               "jce_miner_variation":  "4"
                           },
-						  {
+                          {
                               "symbol":  "CX",
                               "software":  "SRBMiner-CN",
                               "static_param":  "1",
@@ -74,19 +86,19 @@
                               "srb_config_file":  "config-litev7.txt",
                               "jce_miner_variation":  "4"
                           },
-						  {
+                          {
                               "symbol":  "WRKZ",
                               "software":  "SRBMiner-CN",
                               "static_param":  "5",
-                              "algo":  "cryptonight_lite_v7",
+                              "algo":  "cryptonight_turtle",
                               "pool":  "mining-us.wrkz.work:7777",
                               "wallet":  "WrkzMwsbmK1jM9Txnkne3iHR6H8fPsBwXPupSYdRPDuYRDj3xpqdG1cH2yrWJ9pUoK5BQqpDuPEqZETNPHtCj9AxAcmgRibBvg",
                               "payment_id":  "",
                               "amd_config_file":  "amd_light.txt",
-                              "srb_config_file":  "config-litev7.txt",
+                              "srb_config_file":  "config-turtle.txt",
                               "jce_miner_variation":  "4"
                           },
-						  {
+                          {
                               "symbol":  "BTR",
                               "software":  "SRBMiner-CN",
                               "static_param":  "1",
@@ -98,7 +110,7 @@
                               "srb_config_file":  "config-litev7.txt",
                               "jce_miner_variation":  "4"
                           },
-						  {
+                          {
                               "symbol":  "DEGO",
                               "software":  "SRBMiner-CN",
                               "static_param":  "5",
@@ -107,10 +119,10 @@
                               "wallet":  "dg5J6vxJ12fDRBg65LBoabi77dsSnm383DGu3GRbbfo52pqfNx4Vo9BDWsp8KitZ9v7fdtEXFZNo9gVkAbGKFdtx21WhYnbVR",
                               "payment_id":  "",
                               "amd_config_file":  "",
-                              "srb_config_file": "config-turtle.txt",
-                              "jce_miner_variation": "20"
+                              "srb_config_file":  "config-turtle.txt",
+                              "jce_miner_variation":  "20"
                           },
-						  {
+                          {
                               "symbol":  "UPX",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
@@ -119,10 +131,10 @@
                               "wallet":  "UPX1pSg9f5GZzRqirPQf34AyT5FimX9q2hDVEDM5mK5a1rspwcdUt7DQyirBbiNyjZLhBLGLEFNbAEyRCD1h2hr13s59VqjcMC",
                               "payment_id":  "",
                               "amd_config_file":  "",
-                              "srb_config_file": "config-upx.txt",
-                              "jce_miner_variation": "19"
+                              "srb_config_file":  "config-upx.txt",
+                              "jce_miner_variation":  "19"
                           },
-						  {
+                          {
                               "symbol":  "FRED",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
@@ -131,35 +143,34 @@
                               "wallet":  "fEnrgySVD7rGjzwj2RtwKn9yGFFRYMYCE2VgFvBbDUtqfW1bwWQHmAP8CdChaebaV3A65QYXBUCWvakUuoiAartH6HKxrWXSnkx3H",
                               "payment_id":  "",
                               "amd_config_file":  "amd_light.txt",
-                              "srb_config_file": "config-litev7.txt",
-                              "jce_miner_variation": "4"
+                              "srb_config_file":  "config-litev7.txt",
+                              "jce_miner_variation":  "4"
                           },
-						  {
+                          {
                               "symbol":  "PYX",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
                               "algo":  "cryptonight_v8",
                               "pool":  "pyrex.youpool.io:5556",
                               "wallet":  "PYX1rycDnVASqiSPypwXLPTHGQ1ufC6WZCrMATkTu8UbYXtLgudtNZ4jMcs7x1vP6qeMDaNSTtXvWE7M2jgEx1Rq1bQfE72znP",
-                              "payment_id":"",
+                              "payment_id":  "",
                               "amd_config_file":  "amd_cn8.txt",
-                              "srb_config_file": "config-normalv8.txt",
-                              "jce_miner_variation": "15"
+                              "srb_config_file":  "config-normalv8.txt",
+                              "jce_miner_variation":  "15"
                           },
-						  {
+                          {
                               "symbol":  "RMX",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
                               "algo":  "cryptonight_heavy",
                               "pool":  "pool.remixcoin.io:5555",
                               "wallet":  "REMXioMFdiKE1ZcYrmi8QgKPhAu5LySzt1Vt98iBu2uR65sdTmeR5xiQxEFQoXwRD4i3Yk4TDqcToHqBqE2hDHoHR5SyoX4SwSs",
-                              "payment_id":"",
+                              "payment_id":  "",
                               "amd_config_file":  "amd_TUBE.txt",
-                              "srb_config_file": "config-heavy.txt",
-                              "jce_miner_variation": "5"
-                              
+                              "srb_config_file":  "config-heavy.txt",
+                              "jce_miner_variation":  "5"
                           },
-						  {
+                          {
                               "symbol":  "ZLS",
                               "software":  "SRBMiner-CN",
                               "static_param":  "2",
@@ -826,10 +837,10 @@
                               "algo":  "cryptonight_lite_v7",
                               "pool":  "eu.turtlepool.space:7777",
                               "wallet":  "TRTLuyjPitkPVZB82QMh3nAj2hpgUfVz6QrkQWg9aLUmCUMDEaZBAoLSAyDLXDPH5N1bDRKnj6f6Ea1kjUAm7fHf5azmJAbkB6W",
-                              "payment_id":"",
+                              "payment_id":  "",
                               "amd_config_file":  "amd_light.txt",
-                              "srb_config_file": "config-litev7.txt",
-                              "jce_miner_variation": "4"
+                              "srb_config_file":  "config-litev7.txt",
+                              "jce_miner_variation":  "4"
                           },
                           {
                               "symbol":  "GRFT",
