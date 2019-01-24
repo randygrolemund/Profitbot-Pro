@@ -1133,14 +1133,15 @@ Do {
     else {
         # Increment variable for counting hashrate stalls
         $waiting_hashrate = $waiting_hashrate + 1
-        Write-Host "$TimeNow : Waiting on worker to display hashrate." -ForegroundColor Yellow
+        Write-Host "$TimeNow : Waiting on worker to display hashrate. [$waiting_rashrate]" -ForegroundColor Yellow
     }
 
     # Restart worker if waiting_hashrate count is greater than 5
     if ($waiting_hashrate -ge 5) {
+        Write-Output "$TimeNow : Reached max worker hashrate fail count [5]. Restarting worker."
         # Write to the log.
         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-            Write-Output "$TimeNow : Reached max worker hashrate fail count. Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            Write-Output "$TimeNow : Reached max worker hashrate fail count [5]. Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         }
         # Clear all variables
         Remove-Variable * -ErrorAction SilentlyContinue
