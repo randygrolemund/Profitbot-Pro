@@ -38,8 +38,8 @@
 		"startup_script": ""
 	},
 	{
-		"algo" : "fast",
-		"config" : "Config\\config-fast.txt",
+		"algo" : "fast2",
+		"config" : "Config\\config-fast2.txt",
 		"hashrate" : 1,
 		"startup_script": ""
 	},

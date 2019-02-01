@@ -1,4 +1,4 @@
-SRBMiner Cryptonight AMD GPU Miner V1.7.6
+SRBMiner Cryptonight AMD GPU Miner V1.7.7
 -----------------------------------------
 
 Download:
@@ -8,8 +8,10 @@ https://mega.nz/#F!qVIgxAwB!kKmgCDICmQwbdVvMb-tAag
 BitcoinTalk thread:
 https://bitcointalk.org/index.php?topic=3167363.0
 
-If you are a beginner miner and need help in setting up SRBMiner, check out this link : http://www.srbminer.com/start.html
-If you need help in setting up algo switching, check out this link : http://srbminer.com/algoswitching.html
+If you are a beginner miner and need help in setting up SRBMiner, check out this link : https://www.srbminer.com/start.html
+If you need help in setting up algo switching, check out this link : https://www.srbminer.com/algoswitching.html
+Check out some video tutorials : https://www.srbminer.com/video-tutorials.html
+
 
 To create a basic configuration run the guided-setup.bat script
 
@@ -17,30 +19,32 @@ To create a basic configuration run the guided-setup.bat script
 SUPPORTED ALGOS:
 ----------------
 
-- Cryptonight V8 			[normalv8]
-- Cryptonight V7 			[normalv7]
-- Cryptonight 				[normal]
-- Cryptonight Lite V7 		[litev7]
-- Cryptonight Lite 			[lite]
-- Cryptonight Heavy			[heavy]
-- Cryptonight Haven 		[haven]
-- Cryptonight Fast 			[fast]
-- Cryptonight BitTubeV2 	[bittubev2]
-- Cryptonight StelliteV4 	[stellitev4]
-- Cryptonight StelliteV8 	[stellitev8]
-- Cryptonight ArtoCash 		[artocash]
-- Cryptonight Alloy 		[alloy]
-- Cryptonight B2N 			[b2n]
-- Cryptonight MarketCash 	[marketcash]
-- Cryptonight Italo 		[italo]
-- Cryptonight Red 			[mox]
-- Cryptonight Dark 			[dark]
-- Cryptonight Fest 			[festival]
-- Cryptonight Swap			[swap]
-- Cryptonight Upx 			[upx]
-- Cryptonight Hycon 		[hycon]
-- Cryptonight Webchain 		[webchain]
-- Cryptonight Turtle 		[turtle]
+- Cryptonight Alloy 			[alloy]
+- Cryptonight ArtoCash 			[artocash]
+- Cryptonight B2N 				[b2n]
+- Cryptonight BitTubeV2 		[bittubev2]
+- Cryptonight Dark 				[dark]
+- Cryptonight Fast 				[fast]
+- Cryptonight Fast2 			[fast2]
+- Cryptonight Fest 				[festival]
+- Cryptonight Haven 			[haven]
+- Cryptonight Heavy				[heavy]
+- Cryptonight Hospital 			[hospital]
+- Cryptonight Hycon 			[hycon]
+- Cryptonight Italo 			[italo]
+- Cryptonight Lite 				[lite]
+- Cryptonight Lite V7 			[litev7]
+- Cryptonight MarketCash 		[marketcash]
+- Cryptonight Red 				[mox]
+- Cryptonight 					[normal]
+- Cryptonight V7 				[normalv7]
+- Cryptonight V8 				[normalv8]
+- Cryptonight StelliteV4 		[stellitev4]
+- Cryptonight StelliteV5-V8-V9 	[stellitev8]
+- Cryptonight Swap				[swap]
+- Cryptonight Turtle 			[turtle]
+- Cryptonight Upx 				[upx]
+- Cryptonight Webchain 			[webchain]
 
 
 
@@ -96,6 +100,7 @@ Note: use all lowercase characters
 "min_rig_speed_duration" : number - in seconds (minimum is 30 sec), defines the time period for average hashing speed calculation, used with 'min_rig_speed' parameter
 "target_temperature" : number between 0-99, miner will try to maintain this temperature on all found video cards (ADL must be enabled, works only on cards supporting OverdriveN)
 "shutdown_temperature" : number between 0-100, if this temperature is reached, miner will shutdown system (ADL must be enabled)
+"off_temperature" : temperature in C, when to turn off GPU if it reaches this value. After value - 15, the GPU is turned on again automatically
 
 
 
@@ -203,8 +208,6 @@ Parameters:
 --resetfans (reset fans back to default settings on miner exit)
 --enableduplicategpuid (allows usage of same gpu id multiple times in gpu_conf)
 --setcomputemode (sets AMD gpu's to compute mode & disables crossfire - run as admin)
---runbenchmark (benchmark your current algo settings offline)
---benchmarkduration (how long to run the benchmark in seconds, max is 3 minutes, def. is 1 min.)
 --benchmarkalgos (benchmark all algos set in algos.txt and save results)
 --resetvega (disable/enable Vega video cards before mining)
 --startupscript filename(run custom batch script before mining)
