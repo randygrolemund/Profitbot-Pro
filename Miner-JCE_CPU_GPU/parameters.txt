@@ -48,7 +48,7 @@
                         18 = Cryptonight-FreeHaven/Swap
                         19 = Cryptolight-uPlexa
                         20 = Cryptolight-Turtle v2
-                        21 = Cryptonight-Stellite v8
+                        21 = Cryptonight-Stellite/Masari v8
 
 --low                Mine with low priority not to freeze your computer. Has a very small impact on performances.
                      Recommended.
@@ -106,6 +106,8 @@
                      under N h/s.
 
 --max-temp M         Quit if a GPU raises above M degrees Celcius. Only for AMD GPUs.
+
+--restart            Make options above restart instead of quit.
 
 --rig-id <id>        Additional rig-id at pool login. (optional)
 
