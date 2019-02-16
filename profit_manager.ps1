@@ -707,7 +707,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
     $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword $rigname"
 }
-elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak') {
+elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak' -or $miner_type -eq 'Xcash') {
     # Set switches for mining CPU, AMD, NVIDIA
     if ($mine_cpu -eq "yes") {
         $cpu_param = "--cpu $path\$pc\cpu.txt"
@@ -1133,7 +1133,7 @@ Do {
     else {
         # Increment variable for counting hashrate stalls
         $waiting_hashrate = $waiting_hashrate + 1
-        Write-Host "$TimeNow : Waiting on worker to display hashrate. [$waiting_rashrate]" -ForegroundColor Yellow
+        Write-Host "$TimeNow : Waiting on worker to display hashrate." -ForegroundColor Yellow
     }
 
     # Restart worker if waiting_hashrate count is greater than 5
