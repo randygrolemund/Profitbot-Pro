@@ -287,7 +287,7 @@ if ($get_settings.update_check -eq 'yes') {
                 $original_settings.enable_set_gpu_clocks = $original_settings.enable_set_gpu_clocks
             }
             if (!$original_settings.file_set_gpu_clocks) {
-                $original_settings | add-member -Name "file_set_gpu_clocks" -value "set_gpu.bat" -MemberType NoteProperty                
+                $original_settings | add-member -Name "file_set_gpu_clocks" -value "set_gpu_clock.bat" -MemberType NoteProperty                
             }
             else {
                 $original_settings.file_set_gpu_clocks = $original_settings.file_set_gpu_clocks
