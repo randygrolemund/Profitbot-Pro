@@ -766,7 +766,7 @@ elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
 if ($enable_set_gpu_clocks -eq "yes" -and $file_set_gpu_clocks -ne "ignore"){
     Write-Host "$TimeNow : Setting GPU clocks. Temporarily opening another window." -ForegroundColor Green
     start-process -FilePath $path\$file_set_gpu_clocks
-    Start-Sleep -Seconds 10
+    Start-Sleep -Seconds 5
 }
 
 Write-Host "$TimeNow : Starting $miner_type in another window."
