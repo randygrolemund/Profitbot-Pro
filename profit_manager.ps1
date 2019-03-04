@@ -333,12 +333,12 @@ $Timenow = get-date
 
 #Check if set GPU clock params are null.
 $enable_set_gpu_clocks = $get_settings.enable_set_gpu_clocks
-if(!$enable_set_gpu_clocks){
+if (!$enable_set_gpu_clocks) {
     # Param is null
     $enable_set_gpu_clocks = "no"
 }
 $file_set_gpu_clocks = $get_settings.file_set_gpu_clocks
-if(!$file_set_gpu_clocks){
+if (!$file_set_gpu_clocks) {
     # Param is null
     $file_set_gpu_clocks = "ignore"
 }
@@ -777,7 +777,7 @@ elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
 }
 
 # Set GPU clocks, if enabled
-if ($enable_set_gpu_clocks -eq "yes" -and $file_set_gpu_clocks -ne "ignore"){
+if ($enable_set_gpu_clocks -eq "yes" -and $file_set_gpu_clocks -ne "ignore") {
     Write-Host "$TimeNow : Setting GPU clocks. Temporarily opening another window." -ForegroundColor Green
     start-process -FilePath $path\$file_set_gpu_clocks
     Start-Sleep -Seconds 5
