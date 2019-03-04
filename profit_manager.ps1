@@ -957,7 +957,23 @@ Do {
     # Check if worker url is working, then get the current hashrate from mining software
     $TimeNow = Get-Date
     Start-Sleep -Seconds 5
-    $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
+    
+    try {
+        $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode} 
+    }
+    catch {
+        $TimeNow = Get-Date
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+        # add error to the log.
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage I was mining $best_coin, and using $miner_type when the error occured." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+        }
+    }
+    
     If ($statusCode -eq 200) {
     }
     Else {
@@ -969,6 +985,7 @@ Do {
         $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
     }
     catch {
+        $TimeNow = Get-Date
         $ErrorMessage = $_.Exception.Message
         $FailedItem = $_.Exception.ItemName
         Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
@@ -988,7 +1005,22 @@ Do {
     
 
     # Refresh coin values
-    $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
+    try {
+        $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
+    }
+    catch {
+        $TimeNow = Get-Date
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+        # add error to the log.
+        if ($enable_log -eq 'yes') {
+            if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                Write-Output "$TimeNow : Error encountered - $errormessage I was mining $best_coin, and using $miner_type when the error occured." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+            }
+        }
+    }
+    
     # Set coin variables from API
     $symbol = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
     $coin_name = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_name
@@ -1016,6 +1048,7 @@ Do {
             $my_rejected_shares = $get_hashrate.shares.rejected
         }
         Catch {
+            $TimeNow = Get-Date
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
@@ -1043,6 +1076,7 @@ Do {
             $my_rejected_shares = ($total_shares - $my_accepted_shares)
         }
         Catch {
+            $TimeNow = Get-Date
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
@@ -1070,6 +1104,7 @@ Do {
             $my_rejected_shares = 0
         }
         Catch {
+            $TimeNow = Get-Date
             $ErrorMessage = $_.Exception.Message
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
@@ -1110,6 +1145,7 @@ Do {
                 $reward_24H = [math]::round(($worker_hashRate / $difficulty * ($last_reward / $coin_units) * 86400), 8)
             }
             Catch {
+                $TimeNow = Get-Date
                 $ErrorMessage = $_.Exception.Message
                 $FailedItem = $_.Exception.ItemName
                 Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
@@ -1135,6 +1171,7 @@ Do {
                 $earned_24H = [math]::round([float]($reward_24H * [float]$coin_usd), 8)
             }
             Catch {
+                $TimeNow = Get-Date
                 $ErrorMessage = $_.Exception.Message
                 $FailedItem = $_.Exception.ItemName
                 Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
@@ -1206,6 +1243,7 @@ Do {
         Start-Sleep -Seconds $set_sleep
     }
     catch {
+        $TimeNow = Get-Date
         # Write to the log.
         if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
             Write-Output "$TimeNow : Cannot read from config. The worker is now restarting." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
@@ -1261,6 +1299,7 @@ $mined_hours = $timespan.hours
 
 # Write to log
 if ($enable_log -eq 'yes') {
+    $TimeNow = Get-Date
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
         Write-Output "$TimeNow : Finished mining $best_coin, switching to $best_coin_check" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
         Write-Output "$TimeNow : Mined $best_coin for: $mined_hours : $mined_minutes minutes" | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
