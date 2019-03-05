@@ -792,7 +792,7 @@ if ($static_mode -eq 'yes') {
 else {
     # Check to see if this is the best coin to mine
     try {
-        $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
+        $get_coin_check = Invoke-RestMethod -Uri "https://$update_url" -Method Get
     }
     catch {
         $TimeNow = Get-Date
