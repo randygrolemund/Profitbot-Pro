@@ -1195,7 +1195,7 @@ Do {
                 $TimeNow = Get-Date
                 Write-Host "$TimeNow : Last Accept was $last_accept_duration seconds ago. $minutes_no_accepts minutes exceeded!" -ForegroundColor Red
                 $filename = "$path\coin_settings.conf"
-                [regex]$pattern="$symbol"
+                [regex]$pattern='"$symbol"'
                 $newsymbol = ("$symbol" + "_ignored")
                 $pattern.replace([IO.File]::ReadAllText($filename),"$newsymbol",1) | set-content $filename
                 Write-Host "$TimeNow : Restarting the worker now, and flagging $symbol as ignored." -ForegroundColor Yellow
