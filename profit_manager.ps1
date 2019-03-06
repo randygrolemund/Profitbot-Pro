@@ -293,7 +293,7 @@ if ($get_settings.update_check -eq 'yes') {
                 $original_settings.file_set_gpu_clocks = $original_settings.file_set_gpu_clocks
             }
             if (!$original_settings.minutes_no_accepts) {
-                $original_settings | add-member -Name "minutes_no_accepts" -value "5" -MemberType NoteProperty                
+                $original_settings | add-member -Name "minutes_no_accepts" -value "10" -MemberType NoteProperty                
             }
             else {
                 $original_settings.minutes_no_accepts= $original_settings.minutes_no_accepts
@@ -340,7 +340,7 @@ $Timenow = get-date
 
 # Check to see if minutes_no_accepts is null
 if (!$minutes_no_accepts) {
-    $minutes_no_accepts = 5
+    $minutes_no_accepts = 10
 }
 
 #Check if set GPU clock params are null.
