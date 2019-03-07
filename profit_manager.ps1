@@ -694,6 +694,9 @@ if ($miner_type -eq 'xtl-stak') {
 if ($miner_type -eq 'trtl-stak') {
     Set-Variable -Name "miner_app" -Value "$path\Miner-TRTLstak\trtl-stak.exe"
 }
+if ($miner_type -eq 'xmrig-nvidia') {
+    Set-Variable -Name "miner_app" -Value "$path\Miner-xmrig\xmrig-nvidia.exe"
+}
 Write-Host "$TimeNow : Setting Mining Application to $miner_type"
 
 # This section establishes a fixed diff for each worker. The format depends on which pool you connect to.
@@ -724,7 +727,7 @@ else {
 # If previous worker is running, kill the process.
 
 # List of mining software processes
-$worker_array = @("xmr-stak", "mox-stak", "b2n-miner", "xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak", "trtl-stak")
+$worker_array = @("xmr-stak", "mox-stak", "b2n-miner", "xmr-freehaven", "SRBMiner-CN", "jce_cn_gpu_miner64", "xtl-stak", "trtl-stak", "xmrig-nvidia")
 
 # Loop through each miner process, and kill the one that's running
 foreach ($element in $worker_array) {
@@ -754,6 +757,10 @@ foreach ($element in $worker_array) {
 if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
     $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword $rigname"
+}
+elseif ($miner_type -eq 'xmrig-nvidia') {
+    $logfile = "$(get-date -f yyyy-MM-dd).log"
+    $worker_settings = "--log-file=$path\Miner-xmrig\$logfile --api-port=8080 --donate-level=1 --algo=$algo --url=$pool --user=$wallet$fixed_diff --pass=$rigname --rig-id=$rigname --cuda-max-threads=64 --cuda-bfactor=8 --cuda-bsleep=25 --cuda-affinity=1"
 }
 elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak' -or $miner_type -eq 'Xcash') {
     # Set switches for mining CPU, AMD, NVIDIA
@@ -1095,6 +1102,34 @@ Do {
             $FailedItem = $_.Exception.ItemName
             Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
             Write-Host "$TimeNow : If SRB-Miner does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
+            Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
+            # Write to the log.
+            if ($enable_log -eq 'yes') {
+                if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                    Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                }
+            }
+            Start-Sleep 5
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }
+    }
+
+    elseif ($miner_type -eq 'xmrig-nvidia') {
+        Try {
+            $get_hashrate = Invoke-RestMethod -Uri "http://127.0.0.1:8080" -Method Get
+            $worker_hashrate = $get_hashrate.hashrate.total[0]
+            $my_accepted_shares = $get_hashrate.results.shares_good
+            $total_shares = $get_hashrate.results.shares_total
+            $my_rejected_shares = ($total_shares - $my_accepted_shares)
+        }
+        Catch {
+            $TimeNow = Get-Date
+            $ErrorMessage = $_.Exception.Message
+            $FailedItem = $_.Exception.ItemName
+            Write-Host "$TimeNow : Worker has discovered an error:" $ErrorMessage -ForegroundColor Cyan
+            Write-Host "$TimeNow : If xmrig-nvidia does not have its HTTP API enabled, we cannot get the hashrate." -ForegroundColor Yellow
             Write-Host "$TimeNow : Restarting the worker now. If this happens again, please refer to logs." -ForegroundColor Yellow
             # Write to the log.
             if ($enable_log -eq 'yes') {
