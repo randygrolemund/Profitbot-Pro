@@ -889,15 +889,42 @@ if ($enable_log -eq 'yes') {
 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
     Write-Output "$TimeNow : Starting the worker $miner_type." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
 }
-start-process -FilePath $miner_app -args $worker_settings -WindowStyle Minimized
+try {
+    start-process -FilePath $miner_app -args $worker_settings -WindowStyle Minimized
+}
+catch {
+    Write-Host "$TimeNow : There's a problem with your worker's configuration. I am going to flag $best_coin to be ignored." -ForegroundColor Red
+    $filename = "$path\coin_settings.conf"
+                [regex]$pattern="$best_coin"
+                $newsymbol = ("$best_coin" + "_ignored")
+                $pattern.replace([IO.File]::ReadAllText($filename),"$newsymbol",2) | set-content $filename
+                Write-Host "$TimeNow : Restarting the worker now, and flagging $best_coin as ignored." -ForegroundColor Yellow
+                if ($enable_log -eq 'yes') {
+                    if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+                        Write-Output "$TimeNow : $best_coin was having issues, so we had to ignore it. We've renamed the file to: $newsymbol." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    }
+                }
+                Remove-Variable * -ErrorAction SilentlyContinue
+                ./profit_manager.ps1
+}
+
 Start-Sleep -Seconds 5
 $TimeNow = Get-Date
 $check_worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
+$worker_start_count = 0
 if (!$check_worker_running) {
     Do {
-        Write-Host "$TimeNow : Waiting for worker to start...." -ForegroundColor Yellow
+        $TimeNow = Get-Date
+        Write-Host "$TimeNow : Waiting for worker to start....[$worker_start_count]" -ForegroundColor Yellow
         Start-Sleep -Seconds 10
         $check_worker_running = Get-Process $miner_type -ErrorAction SilentlyContinue
+        $worker_start_count = ($worker_start_count + 1)
+        if ($worker_start_count -ge 10) {
+            Write-Host "$TimeNow : After $worker_start_count attempts to start your worker, all efforts have failed. Restarting." -ForegroundColor Red
+            # Clear all variables
+            Remove-Variable * -ErrorAction SilentlyContinue
+            ./profit_manager.ps1
+        }
     } until($check_worker_running -eq $True)  
 }
 # Mine for established time, then look to see if there's a new coin.
