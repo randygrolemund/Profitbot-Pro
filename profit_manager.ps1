@@ -901,7 +901,7 @@ catch {
                 Write-Host "$TimeNow : Restarting the worker now, and flagging $best_coin as ignored." -ForegroundColor Yellow
                 if ($enable_log -eq 'yes') {
                     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                        Write-Output "$TimeNow : $best_coin was having issues, so we had to ignore it. We've renamed the file to: $newsymbol." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                        Write-Output "$TimeNow : $best_coin was having config issues, so we had to ignore it. We've renamed the file to: $newsymbol." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                     }
                 }
                 Remove-Variable * -ErrorAction SilentlyContinue
