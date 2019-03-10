@@ -760,7 +760,7 @@ if ($miner_type -eq 'SRBMiner-CN') {
 }
 elseif ($miner_type -eq 'xmrig-nvidia') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
-    $worker_settings = "--log-file=$path\Miner-xmrig\$logfile --api-port=8080 --donate-level=1 --algo=$algo --url=$pool --user=$wallet$fixed_diff --pass=$rigname --rig-id=$rigname --cuda-max-threads=64 --cuda-bfactor=8 --cuda-bsleep=25 --cuda-affinity=1"
+    $worker_settings = "--log-file=$path\Miner-xmrig\$logfile --api-port=8080 --donate-level=1 --algo=$algo --url=$pool --user=$wallet$fixed_diff --pass=$rigname --rig-id=$rigname --cuda-max-threads=64 --cuda-bfactor=8 --cuda-bsleep=25"
 }
 elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak' -or $miner_type -eq 'Xcash') {
     # Set switches for mining CPU, AMD, NVIDIA
