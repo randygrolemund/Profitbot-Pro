@@ -587,7 +587,20 @@ $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_
 $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty wallet
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
 $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
-$rig_password = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty password
+try {
+    $rig_password = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty password
+}
+catch {
+    $timenow = Get-Date
+    Write-Host "$TimeNow : You are missing the password json key/value pair in coin_settings.conf." -ForegroundColor Red
+    # Write to log.
+    if ($enable_log -eq 'yes') {
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Missing password json key/value pair in coin_settings.conf for $symbol." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+    }
+}
+
 
 # If password is empty, set tp the same of the rig. If it's not empty, use password or merged mining.
 if (!$rig_password) {
