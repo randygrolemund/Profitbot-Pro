@@ -587,6 +587,13 @@ $pool = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_
 $wallet = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty wallet
 $amd_config_file = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty amd_config_file
 $payment_id = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty payment_id
+$rig_password = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty password
+
+# If password is empty, set tp the same of the rig. If it's not empty, use password or merged mining.
+if (!$rig_password) {
+    $rig_password = $rigname
+}
+
 
 # If configured for SRB otherwise ignore
 if ($miner_type -eq 'SRBMiner-CN') {
@@ -756,11 +763,11 @@ foreach ($element in $worker_array) {
 
 if ($miner_type -eq 'SRBMiner-CN') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
-    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword $rigname"
+    $worker_settings = "--config $path\Miner-SRB\Config\$srb_config --pools $path\Miner-SRB\pools.txt --logfile $path\Miner-SRB\$logfile --apienable --apiport 8080 --apirigname $rigname --cworker $rigname --cpool $pool --cwallet $wallet$fixed_diff --cpassword $rig_password"
 }
 elseif ($miner_type -eq 'xmrig-nvidia') {
     $logfile = "$(get-date -f yyyy-MM-dd).log"
-    $worker_settings = "--log-file=$path\Miner-xmrig\$logfile --api-port=8080 --donate-level=1 --algo=$algo --url=$pool --user=$wallet$fixed_diff --pass=$rigname --rig-id=$rigname --cuda-max-threads=64 --cuda-bfactor=8 --cuda-bsleep=25"
+    $worker_settings = "--log-file=$path\Miner-xmrig\$logfile --api-port=8080 --donate-level=1 --algo=$algo --url=$pool --user=$wallet$fixed_diff --pass=$rig_password --rig-id=$rigname --cuda-max-threads=64 --cuda-bfactor=8 --cuda-bsleep=25"
 }
 elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_type -eq 'b2n-miner' -or $miner_type -eq 'xmr-freehaven' -or $miner_type -eq 'xtl-stak' -or $miner_type -eq 'trtl-stak' -or $miner_type -eq 'Xcash') {
     # Set switches for mining CPU, AMD, NVIDIA
@@ -789,12 +796,12 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
         Write-Host "$TimeNow : Nvidia Mining is Disabled." -ForegroundColor Cyan
     }
     # Configure the attributes for the mining software.
-    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass $rigname $cpu_param $amd_param $nvidia_param"
+    $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass $rig_password $cpu_param $amd_param $nvidia_param"
 }
 elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
     
     # Configure the attributes for the mining software.
-    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation -o $pool -u $wallet$fixed_diff -p $rigname --mport 8080 -t $jce_miner_threads --low "
+    $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation -o $pool -u $wallet$fixed_diff -p $rig_password --mport 8080 -t $jce_miner_threads --low "
 }
 
 # Set GPU clocks, if enabled
