@@ -409,6 +409,26 @@ else {
     
 }
 
+# If coin is ignored and worker is set to static mode, stop everything.
+if ($static_mode -eq 'yes' -and $default_coin -like '*_ignored*') {
+    Write-Host "$TimeNow : Profitbot Pro is set to static mode, but $default_coin is set to ignored." -ForegroundColor Red
+    Write-Host "$TimeNow : Please correct the issue, and press any key." -ForegroundColor Red
+    [console]::beep(2000, 500)
+    [console]::beep(2000, 500)
+    [console]::beep(2000, 500)
+    # add error to the log.
+    if ($enable_log -eq 'yes') {
+        if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
+            Write-Output "$TimeNow : Error encountered - I was mining $best_coin, but it is set to ignored." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+        }
+    }
+    Pause
+    # Clear all variables
+    Remove-Variable * -ErrorAction SilentlyContinue
+    #The miner will reload the Powershell file. You can make changes while it's running, and they will be applied on reload.
+    .\profit_manager.ps1
+}
+
 # Set mode variables for best coin
 if ($static_mode -eq "yes") {
     $best_coin = $default_coin
@@ -1305,7 +1325,8 @@ Do {
                     }
                 }
                 Write-Host "$TimeNow : Successfully stopped miner process, reloading." -ForegroundColor Yellow
-                Start-Sleep 5
+                # Extra delay to prevent collision
+                Start-Sleep -Seconds 5
                 # Clear all variables
                 Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
@@ -1521,6 +1542,8 @@ if ($worker_running) {
 }
 Write-Host "$TimeNow : Successfully stopped miner process, reloading." -ForegroundColor Yellow
 
+# Extra delay to prevent collision
+Start-Sleep -Seconds 5
 # Write to the log.
 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
     Write-Output "$TimeNow : The worker is now restarting." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
