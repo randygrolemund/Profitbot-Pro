@@ -1372,10 +1372,6 @@ Do {
                 Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
             }           
-            # Hotfix for LOKI
-            if ($symbol -eq 'LOKI') {
-                $reward_24H = ($reward_24H / 2)
-            }
 
             # Caclulate daily profit in USD if not null
             Try {
