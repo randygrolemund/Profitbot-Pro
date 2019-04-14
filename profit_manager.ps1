@@ -1365,7 +1365,7 @@ Do {
                 Start-Sleep 10
                 # Write to the log.
                 if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
-                    Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
+                    Write-Output "$TimeNow : Error encountered - $errormessage Restarting worker. Worker hashrate: $worker_hashRate, Difficulty: $difficulty, Last Reward $last_reward, Coin Units $coin_units. " | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                     Write-Output "$TimeNow : Extra Error info: $worker_hashrate $difficulty $last_reward $coin_units ." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
                 }
                 # Clear all variables
