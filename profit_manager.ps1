@@ -90,7 +90,7 @@ if ($enable_log -eq 'yes') {
         Write-Output "$TimeNow : Created log file for $pc" | Out-File $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
 }
-    
+
 # ************************************************************************************************************************************
 
 #Settings for Updater
@@ -137,7 +137,7 @@ if ($get_settings.update_check -eq 'yes') {
                 #Restart Worker and pull in new profit_manager.ps1 before updating the rest of the files.
                 Write-Host "$TimeNow : Creating lockfile.lock. Lockfile will be removed after update." -ForegroundColor Red
                 Write-Output "$PC" | Out-File $path\lockfile.lock
-                Write-Host "$TimeNow : Restarting worker before updating additional files." -ForegroundColor Green 
+                Write-Host "$TimeNow : Restarting worker before updating additional files." -ForegroundColor Green
                 ./profit_manager.ps1
             }
             if ($installed_settings_version -ne $installed_coin_settings_version) {
@@ -147,7 +147,7 @@ if ($get_settings.update_check -eq 'yes') {
 
             # Check if Backups folders exists, otherwise create
             if (Test-Path $path\Backups -PathType Container) {
-                
+
                 #Test if Previous Versions is empty
                 $directoryInfo = Get-ChildItem $path\Previous_Version | Measure-Object
                 if ($directoryInfo.Count -eq 0) {
@@ -158,16 +158,16 @@ if ($get_settings.update_check -eq 'yes') {
                     $source = "$path\Previous_Version"
                     $destination = "$path\Backups\backup_$(get-date -f 'yyyy-MM-dd_HH-mm_mm_ss').zip"
                     Add-Type -assembly "system.io.compression.filesystem"
-                    [io.compression.zipfile]::CreateFromDirectory($Source, $destination) 
+                    [io.compression.zipfile]::CreateFromDirectory($Source, $destination)
                 }
             }
-                 
+
             # Copy files from root to previous_version
             Write-Host "$TimeNow : Backing up your current files to Previous_Version." -ForegroundColor Yellow
             Copy-Item -Path $path\*.conf -Destination $path\Previous_Version -force
             Copy-Item -Path $path\*.ps1 -Destination $path\Previous_Version -force
             Write-Host "$TimeNow : Downloading updates...." -ForegroundColor Cyan
-            
+
             # Download Additional Updates
             $url = "https://api.profitbotpro.com/releases/profitbot_pro/settings.conf"
             $output = "$path\settings.conf"
@@ -206,7 +206,7 @@ if ($get_settings.update_check -eq 'yes') {
             if (Test-Path $path\Start_mining.bat) {
                 Remove-Item $path\Start_mining.bat
             }
-            
+
             Write-Host "$TimeNow : Importing settings from coin_settings.conf." -ForegroundColor Yellow
             # Copy user's settings from original config files to new config files.
             $original_coin_settings = Get-Content $coin_settings_path -raw | ConvertFrom-Json
@@ -216,7 +216,7 @@ if ($get_settings.update_check -eq 'yes') {
             $original_coin_settings.version = $web_version
             $original_coin_settings | ConvertTo-Json -Depth 10 | set-content 'coin_settings.conf'
             Start-Sleep 2
-            
+
             Write-Host "$TimeNow : Importing settings from settings.conf." -ForegroundColor Yellow
             $original_settings = Get-Content $settings_path -raw | ConvertFrom-Json
             $original_settings.path = $original_settings.path
@@ -228,38 +228,38 @@ if ($get_settings.update_check -eq 'yes') {
             $original_settings.log_age = $original_settings.log_age
             $original_settings.delete_cpu_txt = $original_settings.delete_cpu_txt
             $original_settings.mining_timer = $original_settings.mining_timer
-            $original_settings.sleep_seconds = $original_settings.sleep_seconds   
+            $original_settings.sleep_seconds = $original_settings.sleep_seconds
             $original_settings.voice = $original_settings.voice
             $original_settings.version = $web_version
             if (!$original_settings.stop_worker_delay) {
                 $original_settings | add-member -Name "stop_worker_delay" -value "5" -MemberType NoteProperty
             }
             else {
-                $original_settings.stop_worker_delay = $original_settings.stop_worker_delay                
+                $original_settings.stop_worker_delay = $original_settings.stop_worker_delay
             }
             if (!$original_settings.enable_coin_data) {
                 $original_settings | add-member -Name "enable_coin_data" -value "yes" -MemberType NoteProperty
             }
             else {
-                $original_settings.enable_coin_data = $original_settings.enable_coin_data                
+                $original_settings.enable_coin_data = $original_settings.enable_coin_data
             }
             if (!$original_settings.mine_cpu) {
                 $original_settings | add-member -Name "mine_cpu" -value "yes" -MemberType NoteProperty
             }
             else {
-                $original_settings.mine_cpu = $original_settings.mine_cpu                
+                $original_settings.mine_cpu = $original_settings.mine_cpu
             }
             if (!$original_settings.mine_amd) {
                 $original_settings | add-member -Name "mine_amd" -value "yes" -MemberType NoteProperty
             }
             else {
-                $original_settings.mine_amd = $original_settings.mine_amd                
+                $original_settings.mine_amd = $original_settings.mine_amd
             }
             if (!$original_settings.mine_nvidia) {
                 $original_settings | add-member -Name "mine_nvidia" -value "yes" -MemberType NoteProperty
             }
             else {
-                $original_settings.mine_nvidia = $original_settings.mine_nvidia                
+                $original_settings.mine_nvidia = $original_settings.mine_nvidia
             }
             if (!$original_settings.rig_name) {
                 $original_settings | add-member -Name "rig_name" -value "" -MemberType NoteProperty
@@ -272,38 +272,38 @@ if ($get_settings.update_check -eq 'yes') {
                 $original_settings | add-member -Name "api_key" -value "" -MemberType NoteProperty
             }
             else {
-                $original_settings.api_key = $original_settings.api_key 
+                $original_settings.api_key = $original_settings.api_key
             }
             if (!$original_settings.jce_miner_threads) {
-                $original_settings | add-member -Name "jce_miner_threads" -value "2" -MemberType NoteProperty                
+                $original_settings | add-member -Name "jce_miner_threads" -value "2" -MemberType NoteProperty
             }
             else {
                 $original_settings.jce_miner_threads = $original_settings.jce_miner_threads
             }
             if (!$original_settings.enable_set_gpu_clocks) {
-                $original_settings | add-member -Name "enable_set_gpu_clocks" -value "no" -MemberType NoteProperty                
+                $original_settings | add-member -Name "enable_set_gpu_clocks" -value "no" -MemberType NoteProperty
             }
             else {
                 $original_settings.enable_set_gpu_clocks = $original_settings.enable_set_gpu_clocks
             }
             if (!$original_settings.file_set_gpu_clocks) {
-                $original_settings | add-member -Name "file_set_gpu_clocks" -value "set_gpu_clock.bat" -MemberType NoteProperty                
+                $original_settings | add-member -Name "file_set_gpu_clocks" -value "set_gpu_clock.bat" -MemberType NoteProperty
             }
             else {
                 $original_settings.file_set_gpu_clocks = $original_settings.file_set_gpu_clocks
             }
             if (!$original_settings.minutes_no_accepts) {
-                $original_settings | add-member -Name "minutes_no_accepts" -value "10" -MemberType NoteProperty                
+                $original_settings | add-member -Name "minutes_no_accepts" -value "10" -MemberType NoteProperty
             }
             else {
                 $original_settings.minutes_no_accepts= $original_settings.minutes_no_accepts
             }
-            $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf' 
+            $original_settings | ConvertTo-Json -Depth 10 | set-content 'settings.conf'
 
             Write-Host "$TimeNow : Removing lockfile." -ForegroundColor White
             Remove-Item lockfile.lock
             Start-Sleep 2
-            
+
             Write-Host "$TimeNow : Updates installed! Restarting worker." -ForegroundColor Green
             # Pull in settings from file
             $get_settings = Get-Content -Path "settings.conf" | Out-String | ConvertFrom-Json
@@ -406,7 +406,7 @@ if (!$get_settings.stop_worker_delay) {
 else {
     $stop_worker_delay = $get_settings.stop_worker_delay
 
-    
+
 }
 
 # If coin is ignored and worker is set to static mode, stop everything.
@@ -440,7 +440,7 @@ else {
     Write-Host "$TimeNow : Connecting to Profitbot Pro API." -ForegroundColor Magenta
     Write-Host "$TimeNow : Retreiving list of coins." -ForegroundColor Magenta
     try {
-        $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
+        $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get
     }
     catch {
         $TimeNow = Get-Date
@@ -454,7 +454,7 @@ else {
             }
         }
     }
-    
+
     # Cycle through the API's top list of coins, report error & restart if null.
     Try {
         if ($get_coin.symbol[0] -in $Array.ToUpper()) {
@@ -537,7 +537,6 @@ else {
         }
         # Clear all variables
         Remove-Variable * -ErrorAction SilentlyContinue
-        
         #Restart the worker
         ./profit_manager.ps1
     }
@@ -562,18 +561,18 @@ if ($static_mode -eq 'yes') {
     if (Test-Path $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log) {
         Write-Output "$TimeNow : Worker is set to static mode." | Out-File  -append $path\$pc\$pc"_"$(get-date -f yyyy-MM-dd).log
     }
-    Write-Host "$TimeNow : Worker is set to static mode, configured to mine $best_coin." -ForegroundColor red  
+    Write-Host "$TimeNow : Worker is set to static mode, configured to mine $best_coin." -ForegroundColor red
 }
 else {
     #Check if the best coin to mine is in your list.
     if ($best_coin -in $Array.ToUpper()) {
         if ($top_list_position -eq 1000) {
-            Write-Host "$TimeNow : No top list coint match. You will be mining your default coin." -ForegroundColor Magenta  
+            Write-Host "$TimeNow : No top list coint match. You will be mining your default coin." -ForegroundColor Magenta
         }
         else {
-            Write-Host "$TimeNow : You will be mining coin number $top_list_position in the API list." -ForegroundColor Magenta  
+            Write-Host "$TimeNow : You will be mining coin number $top_list_position in the API list." -ForegroundColor Magenta
         }
-        
+
     }
     else {
         Write-Host "$TimeNow : The best coin to mine is $best_coin but it's not in your list" -ForegroundColor red
@@ -644,15 +643,15 @@ if ($miner_type -eq 'SRBMiner-CN') {
             else {
                 Write-Host "$TimeNow : SRB Cache will NOT be purged." -ForegroundColor Magenta
             }
-    
+
         }
         else {
             Write-Host "$TimeNow : Checking SRB Cache Folder Structure. (Doesn't Exist! SRB Installed?)" -ForegroundColor Red
-        }    
+        }
     }
 }
 if ($miner_type -eq 'jce_cn_gpu_miner64') {
-    $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation 
+    $jce_miner_variation = $get_coin_settings.mining_params | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty jce_miner_variation
 }
 # Check if wallet param exists, if not then display error
 if (!$symbol) {
@@ -685,17 +684,17 @@ If (Test-Path -Path $Path\$pc\$symbol.conf) {
     $set_diff_value = $import_diff_value.difficulty
     Write-Host "$TimeNow : Diffuculty config for $symbol is present, setting to $set_diff_value" -ForegroundColor Yellow
 }
-else { 
+else {
     Write-Host "$TimeNow : No diffuculty config for $symbol is present, skipping this time." -ForegroundColor red
     $set_diff_config = "no"
 }
 # Check for CPU.txt file, delete if exists, will create a new one once mining app launches.
 if (Test-Path $path\$pc\cpu.txt) {
-    
+
     if ($get_settings.delete_cpu_txt -eq 'yes') {
         Write-Host "$TimeNow : Purging old cpu.txt file (OK!)" -ForegroundColor Green
         Remove-Item $path\$pc\cpu.txt
-    } 
+    }
 }
 else {
     Write-Host "$TimeNow : Could not find cpu.txt file, there is nothing to delete. (OK!)" -ForegroundColor Green
@@ -783,7 +782,7 @@ foreach ($element in $worker_array) {
         $worker_running.CloseMainWindow() | out-null
         # kill after five seconds
         Write-Host "$TimeNow : Pausing for $stop_worker_delay seconds while worker shuts down." -ForegroundColor Yellow
-        
+
         Start-Sleep $stop_worker_delay
 
         if (!$worker_running.HasExited) {
@@ -832,7 +831,7 @@ elseif ($miner_type -eq 'xmr-stak' -or $miner_type -eq 'mox-stak' -or $miner_typ
     $worker_settings = "--poolconf $path\$pc\pools.txt --config $path\$config --currency $algo --url $pool --user $wallet$fixed_diff --rigid $rigname --pass $rig_password $cpu_param $amd_param $nvidia_param"
 }
 elseif ($miner_type -eq 'jce_cn_gpu_miner64') {
-    
+
     # Configure the attributes for the mining software.
     $worker_settings = "--auto --any --forever --keepalive --variation $jce_miner_variation -o $pool -u $wallet$fixed_diff -p $rig_password --mport 8080 -t $jce_miner_threads --low "
 }
@@ -965,7 +964,7 @@ if (!$check_worker_running) {
             Remove-Variable * -ErrorAction SilentlyContinue
             ./profit_manager.ps1
         }
-    } until($check_worker_running -eq $True)  
+    } until($check_worker_running -eq $True)
 }
 # Mine for established time, then look to see if there's a new coin.
 $TimeEnd = $timeStart.addminutes($mine_minutes)
@@ -985,9 +984,9 @@ Write-Host " "
 $waiting_hashrate = 0
 
 # Begin a loop to check if the current coin is the best coin to mine. If not, restart the app and switchin coins.
-Do { 
+Do {
     if ($TimeNow -ge $TimeEnd) {
-        
+
         $TimeNow = Get-Date
         # Edit for adding static mining
 
@@ -1050,13 +1049,13 @@ Do {
             catch {
                 Write-Host "$TimeNow : Cannot read from Profitbot Pro API, restarting." -ForegroundColor Red
                 Start-Sleep 3
-                
+
                 # Clear all variables
                 Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
-                
+
             }
-             
+
             Write-Host "$TimeNow : Checking Coin Profitability." -ForegroundColor Yellow
             Write-Host "$TimeNow : Best Coin to Mine:" $best_coin_check -ForegroundColor Magenta
             if ($best_coin -eq $best_coin_check) {
@@ -1073,9 +1072,9 @@ Do {
     # Check if worker url is working, then get the current hashrate from mining software
     $TimeNow = Get-Date
     Start-Sleep -Seconds 5
-    
+
     try {
-        $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode} 
+        $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
     }
     catch {
         $TimeNow = Get-Date
@@ -1089,14 +1088,14 @@ Do {
             }
         }
     }
-    
+
     If ($statusCode -eq 200) {
     }
     Else {
         Write-Host "$TimeNow : Worker is taking a little longer than expected to start." -ForegroundColor Yellow
         Start-Sleep -Seconds 10
     }
-    
+
     try {
         $statusCode = Invoke-WebRequest http://127.0.0.1:8080 | % {$_.StatusCode}
     }
@@ -1117,12 +1116,12 @@ Do {
         # Clear all variables
         Remove-Variable * -ErrorAction SilentlyContinue
         ./profit_manager.ps1
-    }   
-    
+    }
+
 
     # Refresh coin values
     try {
-        $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get 
+        $get_coin = Invoke-RestMethod -Uri "https://$update_url" -Method Get
     }
     catch {
         $TimeNow = Get-Date
@@ -1136,7 +1135,7 @@ Do {
             }
         }
     }
-    
+
     # Set coin variables from API
     $symbol = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty symbol
     $coin_name = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_name
@@ -1148,10 +1147,10 @@ Do {
     $coin_units = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty coin_units
     $last_updated = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty last_updated
     $satoshi = $get_coin | Where-Object { $_.Symbol -like $best_coin } | Select-Object -ExpandProperty satoshi
-    
+
     # Verify the API json is not empty  -----not currently used in code
     $json_count = $get_coin | Measure-Object | Select-Object Count
-   
+
     # Get the current date and time.
     $TimeNow = Get-Date
 
@@ -1287,7 +1286,7 @@ Do {
             $last_accept_duration = $duration.TotalSeconds
             $last_accept_duration_mins = ($last_accept_duration / 60)
             $last_accept_duration = [decimal][math]::Round(($last_accept_duration),0)
-            
+
 
             if ($last_accept_duration_mins -lt $minutes_no_accepts) {
                 $TimeNow = Get-Date
@@ -1332,14 +1331,14 @@ Do {
                 ./profit_manager.ps1
             }
         }
-        
+
     }
 
     # Calculate the worker hashrate and accepted shares.
     $suggested_diff = [math]::Round($worker_hashrate * 30)
     if ($worker_hashrate -match "[0-9]" -and $worker_hashrate -ne "0" -and $null -ne $worker_hashrate) {
 
-        
+
         # If coin value is 0.00, set to min LTC value
         if ($coin_usd -eq 0) {
             $coin_usd = 0.00000054
@@ -1371,7 +1370,7 @@ Do {
                 # Clear all variables
                 Remove-Variable * -ErrorAction SilentlyContinue
                 ./profit_manager.ps1
-            }           
+            }
 
             # Caclulate daily profit in USD if not null
             Try {
@@ -1429,13 +1428,13 @@ Do {
 
     # Communicate mining status with the Miner API if API_Key is not null.
     if (!$apikey) {
-        
+
     }
     else {
         $submit_mining_results = Invoke-RestMethod -Uri "https://www.profitbotpro.com/api/v1/miners.cfm?api_key=$apikey&rig_name=$rigname&mining_mode=$mining_mode&symbol=$symbol&hashrate=$worker_hashRate&reward_24h=$reward_24H&earned_24h=$earned_24H&accepted_shares=$my_accepted_shares&rejected_shares=$my_rejected_shares&algo=$algo&miner_type=$miner_type" -Method Post
     }
-    
-    
+
+
     # Clear variables
     Remove-Variable count -ErrorAction SilentlyContinue
     Remove-Variable start_thread -ErrorAction SilentlyContinue
@@ -1444,7 +1443,7 @@ Do {
     Remove-Variable i -ErrorAction SilentlyContinue
     Remove-Variable get_coin -ErrorAction SilentlyContinue
     Remove-Variable last_updated -ErrorAction SilentlyContinue
-    
+
     #If cannot get sleep seconds from the config file, clear all variables and restart
     try {
         Start-Sleep -Seconds $set_sleep
@@ -1466,7 +1465,7 @@ Do {
     $previous_accept_increment_time = $accept_increment_time
     $TimeNow = Get-Date
     Write-Host "$TimeNow : Previous accept increment is $previous_accept_increment_value." -ForegroundColor Gray
-    
+
 }
 While ($best_coin -eq $best_coin_check)
 
@@ -1487,7 +1486,7 @@ If ( Test-Path -Path $Path\$pc\$symbol.conf ) {
 else {
     Write-Host "$TimeNow : Creating difficulty config file for $symbol on this worker." -ForegroundColor Green
     Write-Host "$TimeNow : We've calulated the fixed difficulty to be $suggested_diff ." -ForegroundColor Green
-    
+
     # Create Diff/Hashrate objects in json
     [hashtable]$build_json = @{}
     $build_json.difficulty = "$suggested_diff"
